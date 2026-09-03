@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shelf - Bakery Management Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+
+    <!-- Navigation Bar Container -->
+    <header class="bg-amber-900 text-white shadow-md p-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🥖</span>
+                <h1 class="text-lg font-bold tracking-wide">Smart Shelf Manager</h1>
+            </div>
+
+            <!-- Navigation Tabs (Single Row, Compact Spacing) -->
+            <nav class="flex flex-wrap items-center gap-1.5 bg-amber-950/40 p-1.5 rounded-xl border border-amber-800">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 py-1.5 bg-amber-800 text-white font-semibold rounded-lg shadow text-xs transition">Dashboard</button>
+                <button onclick="switchTab('catalog')" id="nav-catalog" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Catalog & Restock</button>
+                <button onclick="switchTab('pricing')" id="nav-pricing" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Full Pricing & Details</button>
+                <button onclick="switchTab('billing')" id="nav-billing" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Billing & POS</button>
+                <button onclick="switchTab('revenue')" id="nav-revenue" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Sales & Revenue</button>
+                <button onclick="switchTab('posters')" id="nav-posters" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Flash Posters</button>
+            </nav>
+
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6">
+
+        <!-- TAB 1: DASHBOARD & ANALYTICS -->
+        <section id="dashboard-tab" class="tab-content space-y-6">
+            
+            <!-- Closing Time Banner with Manual Input -->
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm space-y-3">
+                <div class="flex justify-between items-center flex-wrap gap-3">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl">🌤️</span>
+                        <div>
+                            <div class="flex items-center space-x-2 flex-wrap gap-2">
+                                <h4 class="font-semibold text-amber-900">Closing Target: <span id="display-closing-time">9:00 PM</span></h4>
+                                <input type="time" id="manual-closing-time-input" value="21:00" class="border border-amber-300 rounded px-2 py-1 text-sm font-bold text-amber-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <button onclick="setManualClosingTime()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Set Time</button>
+                                <span id="store-status" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-700">Checking...</span>
+                                <span id="weather-badge" class="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">🌦️ Loading Weather...</span>
+                            </div>
+                            <p class="text-xs text-amber-700 mt-0.5">Risk scores dynamically scale using live weather forecasts and closing time remaining.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Single Smart Toggle Button -->
+                    <button id="toggle-shop-btn" onclick="toggleShopStatus()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition">
+                        🚨 Close Shop Now
+                    </button>
+                </div>
+
+                <!-- Hidden Extension Prompt (Appears when closing time is reached naturally) -->
+                <div id="closing-prompt" class="hidden bg-white border-2 border-amber-400 p-3 rounded-lg flex justify-between items-center shadow-md animate-pulse">
+                    <div>
+                        <p class="text-sm font-bold text-amber-900">Closing time reached! Do you want to keep the shop open longer?</p>
+                        <p class="text-xs text-gray-600">Choose to extend or close down for the day.</p>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="extendClosingTime(30)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Extend 30 Mins</button>
+                        <button onclick="confirmCloseShop()" class="bg-gray-700 hover:bg-gray-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Close Shop</button>
+                    </div>
+                </div>
+
+                <!-- Rain Discount Approval Banner (Initially Hidden) -->
+                <div id="rain-approval-banner" class="hidden bg-blue-50 border border-blue-300 p-3 rounded-lg flex justify-between items-center mt-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xl">🌧️</span>
+                        <div>
+                            <p class="text-xs font-bold text-blue-900">Rain Detected in Chennai! Weather Emergency Active.</p>
+                            <p class="text-xs text-blue-700">Would you like to authorize an aggressive 50% price drop on surplus stock?</p>
+                        </div>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="approveRainDiscount()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow">
+                            ✅ Approve 50% Discount
+                        </button>
+                        <button onclick="dismissRainDiscount()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 text-xs font-semibold px-2 py-1.5 rounded transition">
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Stat Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-medium text-gray-500">Total Items Tracked</h3>
+                    <p id="stat-total" class="text-3xl font-bold text-amber-800 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-medium text-gray-500">High Risk Items (>3.5)</h3>
+                    <p id="stat-risk" class="text-3xl font-bold text-red-600 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-medium text-gray-500">Estimated Waste Saved</h3>
+                    <p id="stat-saved" class="text-3xl font-bold text-emerald-600 mt-2">$0.00</p>
+                </div>
+            </div>
+
+            <!-- Modern Neumorphic / Sleek Weather Widget Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700/50 space-y-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl" id="weather-icon-symbol">⛅</span>
+                        <div>
+                            <h3 class="text-sm font-bold tracking-wide text-slate-200">Chennai Weather</h3>
+                            <p class="text-[10px] text-slate-400">Live Smart Shelf Trigger</p>
+                        </div>
+                    </div>
+                    <span id="weather-status-pill" class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Active</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-xs bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/40">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase tracking-wider">Condition</span>
+                        <span id="weather-card-condition" class="font-bold text-slate-100 text-sm">Loading...</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase tracking-wider">Penalty Multiplier</span>
+                        <span id="weather-card-penalty" class="font-bold text-amber-400 text-sm">1.0x</span>
+                    </div>
+                </div>
+
+                <div id="weather-card-approval" class="hidden bg-blue-950/80 border border-blue-500/40 p-3.5 rounded-xl space-y-2.5">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-base">🌧️</span>
+                        <p class="text-xs font-semibold text-blue-200">Rain Emergency Triggered! Authorize 50% Off Flash Sale?</p>
+                    </div>
+                    <div class="flex space-x-2 pt-1">
+                        <button onclick="approveRainDiscount()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg transition shadow">
+                            ✅ Approve 50% Off
+                        </button>
+                        <button onclick="dismissRainDiscount()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-3 py-1.5 rounded-lg transition">
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Shelf Stock Monitor Card -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-800">Live Shelf Stock & Quantities</h3>
+                        <p class="text-xs text-gray-500">Real-time count of items remaining on the physical shelves.</p>
+                    </div>
+                    <button onclick="loadDashboardData()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
+                        🔄 Refresh Stock
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase">
+                                <th class="p-3">Item Name</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Shelf Life</th>
+                                <th class="p-3">Remaining Quantity</th>
+                                <th class="p-3 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="live-stock-table-body" class="text-sm divide-y divide-gray-100">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Live Shelf Overview Table -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-700">Live Shelf Status & High Risk Analysis (>3.5)</h2>
+                    <button onclick="loadDashboardData()" class="text-sm bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition">Refresh Data</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b text-gray-600 bg-gray-50">
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Item Name</th>
+                                <th class="p-3">Qty Left</th>
+                                <th class="p-3">Price</th>
+                                <th class="p-3">Risk Score (Max 5)</th>
+                                <th class="p-3">Suggested Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PERMANENT CATALOG & MORNING RESTOCK -->
+        <section id="catalog-tab" class="tab-content hidden space-y-6 max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Add Permanent Product Form -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">1. Manage Permanent Catalog</h2>
+                    <form id="productForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Item Name</label>
+                            <input type="text" id="prod-name" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., Almond Croissant">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Category</label>
+                            <input type="text" id="prod-category" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., Pastry">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Base Price ($)</label>
+                            <input type="number" step="0.01" id="prod-price" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="3.50">
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 text-white p-3 rounded-lg font-semibold hover:bg-amber-700 transition">Save to Catalog</button>
+                    </form>
+                </div>
+
+                <!-- Daily Morning Restock Form -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">2. Daily Morning Restock</h2>
+                    <form id="restockForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Select Product</label>
+                            <select id="restock-product-id" class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Today's Quantity Baked</label>
+                            <input type="number" id="restock-qty" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="20">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 text-white p-3 rounded-lg font-semibold hover:bg-emerald-700 transition">Update Today's Stock</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Permanent Catalog List (With Remove Option) -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold mb-3 text-gray-700">Permanent Items Catalog</h3>
+                <div id="catalog-list" class="space-y-2">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- FULL PRICING & DETAILS -->
+        <section id="pricing-tab" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Complete Product Catalog & Dynamic Pricing Audit</h3>
+                        <p class="text-xs text-gray-500">Inspect base prices, shelf-life limits, live risk scores, and automated markdowns across all items.</p>
+                    </div>
+                    <button onclick="loadPricingDetails()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+                        🔄 Refresh Pricing Matrix
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase">
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Product Name</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Shelf Life</th>
+                                <th class="p-3">Base Price</th>
+                                <th class="p-3">Risk Score</th>
+                                <th class="p-3">Dynamic Price</th>
+                                <th class="p-3">Active Pricing Rule</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pricing-table-body" class="text-sm divide-y divide-gray-100">
+                            <!-- Populated dynamically via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flash Posters Tab -->
+        <section id="posters-tab" class="tab-content hidden space-y-6">
+            <div class="flex justify-between items-center bg-gradient-to-r from-amber-900 to-amber-800 text-white p-6 rounded-2xl shadow-md">
+                <div>
+                    <h2 class="text-xl font-bold">Active Digital Flash Posters</h2>
+                    <p class="text-xs text-amber-200 mt-1">Automatically generated promotional signage for items undergoing dynamic markdowns.</p>
+                </div>
+                <button onclick="loadFlashPosters()" class="bg-white text-amber-900 hover:bg-amber-50 text-xs font-bold px-4 py-2 rounded-lg shadow transition">
+                    Refresh Posters
+                </button>
+            </div>
+
+            <div id="flash-posters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- Sales & Revenue History Tab -->
+        <section id="revenue-tab" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-1">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Total Revenue Collected</span>
+                    <h2 id="rev-total-collected" class="text-2xl font-bold text-gray-900">$0.00</h2>
+                    <p class="text-[11px] text-emerald-600 font-medium">Successfully saved from spoilage</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-1">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Total Discounts Given</span>
+                    <h2 id="rev-total-discounts" class="text-2xl font-bold text-blue-600">$0.00</h2>
+                    <p class="text-[11px] text-gray-500">Incentive markdowns passed to customers</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-1">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Total Items Sold</span>
+                    <h2 id="rev-total-items" class="text-2xl font-bold text-gray-900">0</h2>
+                    <p class="text-[11px] text-gray-500">Processed via POS checkout</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-800">Completed Checkout Transaction Log</h3>
+                        <p class="text-xs text-gray-500">Audit trail of sales, discounts, and checkout timestamps.</p>
+                    </div>
+                    <button onclick="loadRevenueData()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+                        Refresh Revenue Log
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase">
+                                <th class="p-3">Order ID</th>
+                                <th class="p-3">Timestamp</th>
+                                <th class="p-3">Items Sold</th>
+                                <th class="p-3">Base Value</th>
+                                <th class="p-3">Discount Saved</th>
+                                <th class="p-3 text-right">Final Collected</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenue-table-body" class="text-sm divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Billing & POS Tab -->
+        <section id="billing-tab" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4 md:col-span-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-gray-800">Point of Sale - Product Catalog</h3>
+                        <span class="text-xs text-gray-500" id="pos-item-count">Loading products...</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Search Products</label>
+                        <input type="text" id="pos-search-input" onkeyup="filterPOSProducts()" placeholder="Type to filter products..."
+                               class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[400px] overflow-y-auto border rounded-lg">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50 sticky top-0 border-b text-xs font-semibold text-gray-600 uppercase">
+                                <tr>
+                                    <th class="p-3">Product</th>
+                                    <th class="p-3">Category</th>
+                                    <th class="p-3">Price</th>
+                                    <th class="p-3">Stock</th>
+                                    <th class="p-3 text-center">Quantity</th>
+                                    <th class="p-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pos-product-tbody" class="text-sm divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-800 mb-3">Current Order Cart</h3>
+                        <div id="cart-items-container" class="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                            <p class="text-gray-400 text-xs italic">Cart is empty</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-4 space-y-3">
+                        <div class="flex justify-between items-center text-lg font-bold text-gray-900">
+                            <span>Total Amount:</span>
+                            <span id="cart-total-amount" class="text-emerald-700">$0.00</span>
+                        </div>
+                        <button onclick="completeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow text-sm">
+                            Complete Checkout & Deduct Stock
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/shelf';
+
+        // Store closing configuration (Default: 21:00 / 9:00 PM)
+        let closingHour = 21;
+        let closingMinute = 0;
+        let promptShown = false;
+        let manualClosed = false; 
+        let rainDiscountApproved = false;
+
+        // Global Cart Array & Inventory Cache for Multi-Item Checkout
+        let cart = [];
+        let availableInventory = [];
+
+        // Function to check store status and handle closing prompts
+        function checkStoreStatus() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            const statusBadge = document.getElementById('store-status');
+            const promptBox = document.getElementById('closing-prompt');
+            const displayTime = document.getElementById('display-closing-time');
+            const toggleBtn = document.getElementById('toggle-shop-btn');
+
+            const period = closingHour >= 12 ? 'PM' : 'AM';
+            const formattedHour = closingHour > 12 ? closingHour - 12 : closingHour;
+            const formattedMinute = closingMinute.toString().padStart(2, '0');
+            displayTime.textContent = `${formattedHour}:${formattedMinute} ${period}`;
+
+            const currentTimeMinutes = currentHour * 60 + currentMinute;
+            const closingTimeMinutes = closingHour * 60 + closingMinute;
+
+            const isOpen = currentTimeMinutes < closingTimeMinutes && !manualClosed;
+
+            if (isOpen) {
+                statusBadge.textContent = "OPEN";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                
+                if (toggleBtn) {
+                    toggleBtn.textContent = "🚨 Close Shop Now";
+                    toggleBtn.className = "bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition";
+                }
+
+                promptBox.classList.add('hidden');
+                promptShown = false;
+            } else {
+                statusBadge.textContent = "CLOSED";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300";
+                
+                if (toggleBtn) {
+                    toggleBtn.textContent = "🟢 Open Shop Now";
+                    toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition";
+                }
+
+                const timeDifference = currentTimeMinutes - closingTimeMinutes;
+                const isNearClosingTime = timeDifference >= 0 && timeDifference <= 5;
+
+                if (!manualClosed && !promptShown && isNearClosingTime) {
+                    promptBox.classList.remove('hidden');
+                    promptShown = true;
+                } else {
+                    promptBox.classList.add('hidden');
+                }
+            }
+        }
+
+        // Function to read and apply manual closing time from the input box
+        function setManualClosingTime() {
+            const timeInput = document.getElementById('manual-closing-time-input').value;
+            if (!timeInput) {
+                alert('Please select a valid time.');
+                return;
+            }
+
+            const [hours, minutes] = timeInput.split(':').map(Number);
+            closingHour = hours;
+            closingMinute = minutes;
+            manualClosed = false;
+
+            const period = closingHour >= 12 ? 'PM' : 'AM';
+            const formattedHour = closingHour > 12 ? closingHour - 12 : (closingHour === 0 ? 12 : closingHour);
+            const formattedMinute = closingMinute.toString().padStart(2, '0');
+
+            alert(`Closing target successfully updated to ${formattedHour}:${formattedMinute} ${period}!`);
+            checkStoreStatus();
+            loadDashboardData();
+        }
+
+        // Smart Toggle Button Action
+        async function executeEodRollover() {
+            try {
+                const res = await fetch(`${API_URL}/inventory/rollover`, { method: 'POST' });
+                if (!res.ok) {
+                    throw new Error(`Rollover request failed with status ${res.status}`);
+                }
+                console.log(await res.text());
+            } catch (err) {
+                console.error("Failed to execute EOD rollover", err);
+            }
+        }
+
+        async function toggleShopStatus() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            const closingTimeMinutes = closingHour * 60 + closingMinute;
+            const currentTimeMinutes = currentHour * 60 + currentMinute;
+            const isOpen = currentTimeMinutes < closingTimeMinutes && !manualClosed;
+
+            if (isOpen) {
+                manualClosed = true; 
+                await executeEodRollover();
+                alert("Shop has been closed.");
+            } else {
+                manualClosed = false; 
+                closingHour = 21; 
+                closingMinute = 0;
+                if (currentHour >= 21) {
+                    closingHour = currentHour + 2; 
+                }
+                alert("Shop is now OPEN!");
+            }
+
+            promptShown = false;
+            document.getElementById('closing-prompt').classList.add('hidden');
+            checkStoreStatus();
+            loadDashboardData();
+        }
+
+        function extendClosingTime(mins) {
+            closingMinute += mins;
+            if (closingMinute >= 60) {
+                closingHour += Math.floor(closingMinute / 60);
+                closingMinute = closingMinute % 60;
+            }
+            document.getElementById('closing-prompt').classList.add('hidden');
+            alert(`Shop extended! New closing target set.`);
+            checkStoreStatus();
+            loadDashboardData();
+        }
+
+        async function confirmCloseShop() {
+            manualClosed = true;
+            document.getElementById('closing-prompt').classList.add('hidden');
+            await executeEodRollover();
+            checkStoreStatus();
+            loadDashboardData();
+        }
+
+        function switchTab(tabName) {
+            // 1. Hide every single tab content container
+            const allTabs = document.querySelectorAll('.tab-content');
+            allTabs.forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            // 2. Reset all navigation buttons to default style
+            const allNavs = document.querySelectorAll('button[id^="nav-"]');
+            allNavs.forEach(nav => {
+                nav.classList.remove('bg-amber-800', 'text-white', 'shadow');
+                nav.classList.add('bg-transparent', 'text-amber-200');
+            });
+
+            // 3. Show the selected tab content
+            const activeTab = document.getElementById(tabName + '-tab');
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+            } else {
+                console.error("Missing tab content container for ID: " + tabName + "-tab");
+            }
+
+            // 4. Highlight the selected navigation button
+            const activeNav = document.getElementById('nav-' + tabName);
+            if (activeNav) {
+                activeNav.classList.remove('bg-transparent', 'text-amber-200');
+                activeNav.classList.add('bg-amber-800', 'text-white', 'shadow');
+            }
+
+            // 5. Trigger corresponding data loaders
+            if (tabName === 'dashboard' && typeof loadDashboardData === 'function') loadDashboardData();
+            if (tabName === 'pricing' && typeof loadPricingDetails === 'function') loadPricingDetails();
+            if (tabName === 'billing' && typeof loadPOSProducts === 'function') loadPOSProducts();
+            if (tabName === 'revenue' && typeof loadRevenueData === 'function') loadRevenueData();
+            if (tabName === 'posters' && typeof loadFlashPosters === 'function') loadFlashPosters();
+        }
+
+        async function loadFlashPosters() {
+            try {
+                const res = await fetch(`${API_URL}/shelf/posters?rainDiscountApproved=${rainDiscountApproved}`);
+                if (!res.ok) return;
+                const posters = await res.json();
+                const grid = document.getElementById('flash-posters-grid');
+                grid.innerHTML = '';
+
+                if (posters.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full bg-white p-10 rounded-2xl text-center border border-gray-100">
+                            <p class="text-gray-400 text-sm italic">No active price drops right now. Posters appear automatically when items enter discount tiers.</p>
+                        </div>`;
+                    return;
+                }
+
+                posters.forEach(p => {
+                    const basePrice = Number(p.basePrice) || 0;
+                    const adjustedPrice = Number(p.adjustedPrice) || 0;
+                    const discount = Number(p.discountPercentage) || 0;
+                    grid.innerHTML += `
+                        <div class="bg-gradient-to-br from-cyan-500 via-cyan-600 to-blue-700 text-white rounded-3xl shadow-xl overflow-hidden flex flex-col justify-between p-6 relative border-4 border-yellow-400/80 transform hover:-translate-y-1 transition duration-300">
+                            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-yellow-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                            <div class="flex justify-between items-start z-10">
+                                <span class="bg-yellow-400 text-slate-900 font-black text-xs px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md">⚡ ${p.category || 'Bakery Flash'}</span>
+                                <div class="bg-red-600 text-white font-black text-sm px-3.5 py-1.5 rounded-2xl shadow-lg border-2 border-white/20 transform rotate-3">-${discount}% OFF</div>
+                            </div>
+
+                            <div class="my-6 text-center z-10 space-y-2">
+                                <div class="inline-block bg-yellow-400 text-slate-900 font-extrabold text-xs px-3 py-1 rounded-md shadow uppercase tracking-widest">Surplus Smart Save</div>
+                                <h3 class="text-3xl font-black tracking-tight text-white drop-shadow-md">${p.itemName || 'Unknown Item'}</h3>
+                                <p class="text-xs font-semibold text-cyan-100 italic bg-black/20 px-3 py-1.5 rounded-xl border border-white/10">"${p.slogan || ''}"</p>
+                            </div>
+
+                            <div class="bg-slate-900/40 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center justify-between z-10">
+                                <div>
+                                    <span class="text-[10px] text-cyan-200 uppercase font-bold tracking-wider block">Regular Price</span>
+                                    <span class="text-sm line-through text-cyan-300/80 font-bold">$${basePrice.toFixed(2)}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] text-yellow-300 uppercase font-black tracking-wider block">Flash Price</span>
+                                    <span class="text-2xl font-black text-yellow-400 drop-shadow">$${adjustedPrice.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            } catch (err) {
+                console.error("Failed to load flash posters", err);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const res = await fetch(`${API_URL}/products`);
+                if (!res.ok) return;
+                const products = await res.json();
+
+                let catalogDiv = document.getElementById('catalog-list');
+                let restockSelect = document.getElementById('restock-product-id');
+                catalogDiv.innerHTML = '';
+                restockSelect.innerHTML = '';
+
+                if (products.length === 0) {
+                    catalogDiv.innerHTML = '<p class="text-gray-500 text-sm">No items in catalog yet. Add one above!</p>';
+                    return;
+                }
+
+                for (let p of products) {
+                    catalogDiv.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border text-sm">
+                            <span><strong>${p.name}</strong> (${p.category}) - $${p.basePrice.toFixed(2)}</span>
+                            <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:text-red-800 font-semibold text-xs bg-red-50 px-2.5 py-1 rounded border border-red-200 transition">Remove</button>
+                        </div>
+                    `;
+
+                    restockSelect.innerHTML += `<option value="${p.id}">${p.name} ($${p.basePrice.toFixed(2)})</option>`;
+                }
+            } catch (err) {
+                console.error("Failed to load products", err);
+            }
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('prod-name').value,
+                category: document.getElementById('prod-category').value,
+                basePrice: parseFloat(document.getElementById('prod-price').value)
+            };
+
+            const res = await fetch(`${API_URL}/products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('Permanent product added to catalog!');
+                document.getElementById('productForm').reset();
+                loadProducts();
+            } else {
+                alert('Failed to save product. Name might already exist.');
+            }
+        });
+
+        document.getElementById('restockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const productId = document.getElementById('restock-product-id').value;
+            const qty = document.getElementById('restock-qty').value;
+
+            if (!productId) {
+                alert('Please select a product from the catalog first.');
+                return;
+            }
+
+            const res = await fetch(`${API_URL}/inventory/restock?productId=${productId}&quantity=${qty}`, {
+                method: 'POST'
+            });
+
+            if (res.ok) {
+                alert("Today's stock updated successfully!");
+                document.getElementById('restockForm').reset();
+                switchTab('dashboard');
+            } else {
+                alert('Failed to update stock.');
+            }
+        });
+
+        async function deleteProduct(id) {
+            if (confirm("Are you sure you want to remove this item permanently from your catalog?")) {
+                const res = await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadProducts();
+                } else {
+                    alert('Failed to delete product.');
+                }
+            }
+        }
+
+        async function loadDashboardData() {
+            checkStoreStatus(); 
+            loadWeatherDisplay();
+
+            try {
+                const res = await fetch(`${API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
+                if (!res.ok) return;
+                const evaluatedItems = await res.json();
+
+                document.getElementById('stat-total').innerText = evaluatedItems.length;
+
+                const liveStockTbody = document.getElementById('live-stock-table-body');
+                if (liveStockTbody) {
+                    if (evaluatedItems.length === 0) {
+                        liveStockTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 text-xs">No active inventory found.</td></tr>`;
+                    } else {
+                        const stockRows = evaluatedItems.map(item => {
+                            const itemName = item.itemName || item.name || 'Unknown Item';
+                            const category = item.category || 'Bakery';
+                            const shelfLifeDays = item.shelfLifeDays || 1;
+                            const stock = item.currentQuantity || 0;
+                            const stockBadge = stock <= 5 ?
+                                `<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded">Low Stock (${stock})</span>` :
+                                `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">${stock} Units</span>`;
+
+                            return `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-3 font-medium text-gray-900">${itemName}</td>
+                                    <td class="p-3 text-xs text-gray-600">${category}</td>
+                                    <td class="p-3 text-xs text-gray-600">${shelfLifeDays} Days</td>
+                                    <td class="p-3 font-bold text-gray-800">${stock}</td>
+                                    <td class="p-3 text-right">${stockBadge}</td>
+                                </tr>
+                            `;
+                        }).join('');
+
+                        liveStockTbody.innerHTML = stockRows;
+                    }
+                }
+                
+                let tbody = document.getElementById('dashboard-table-body');
+                
+                tbody.innerHTML = '';
+
+                let highRiskCount = 0;
+
+                if (evaluatedItems.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No active stock found.</td></tr>`;
+                    return;
+                }
+
+                availableInventory = evaluatedItems.map(e => ({
+                    id: e.itemId,
+                    currentQuantity: e.currentQuantity,
+                    product: { name: e.itemName, basePrice: e.basePrice }
+                }));
+
+                for (let evalData of evaluatedItems) {
+                    let itemName = evalData.itemName || 'Unknown Item';
+                    let riskScore = evalData.riskScore || 0;
+                    let action = evalData.action || 'Standard';
+                    let qtyLeft = evalData.currentQuantity || 0;
+                    let basePrice = evalData.basePrice || 0.00;
+                    let adjustedPrice = evalData.adjustedPrice || basePrice;
+                    let discount = evalData.discountPercentage || 0;
+
+                    if (riskScore > 3.5) {
+                        highRiskCount++;
+                        tbody.innerHTML += `
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-3 font-mono text-sm">#${evalData.itemId}</td>
+                                <td class="p-3 font-medium">${itemName}</td>
+                                <td class="p-3">${qtyLeft}</td>
+                                <td class="p-3">
+                                    <span class="line-through text-gray-400 text-xs">$${basePrice.toFixed(2)}</span><br>
+                                    <span class="text-emerald-700 font-bold">$${adjustedPrice.toFixed(2)}</span>
+                                    <span class="text-xs bg-red-100 text-red-700 px-1 rounded">-${discount}%</span>
+                                </td>
+                                <td class="p-3 font-bold text-red-600">${riskScore.toFixed(2)}</td>
+                                <td class="p-3 text-sm text-blue-600 font-semibold">${action}</td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                if (highRiskCount === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No high-risk items above 3.5 threshold right now.</td></tr>`;
+                }
+
+                document.getElementById('stat-risk').innerText = highRiskCount;
+                document.getElementById('stat-saved').innerText = `$${(highRiskCount * 4.50).toFixed(2)}`;
+
+            } catch (err) {
+                console.error("Failed to load dashboard data", err);
+            }
+        }
+
+        async function loadPricingDetails() {
+            try {
+                const res = await fetch(`${API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
+                if (!res.ok) return;
+                const items = await res.json();
+                const tbody = document.getElementById('pricing-table-body');
+                tbody.innerHTML = '';
+
+                if (items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No inventory products found.</td></tr>`;
+                    return;
+                }
+
+                for (const item of items) {
+                    const basePrice = item.basePrice || 0;
+                    const adjustedPrice = item.adjustedPrice || basePrice;
+                    const discount = item.discountPercentage || 0;
+                    const riskScore = item.riskScore || 0;
+                    const shelfLife = item.shelfLifeDays || 1;
+                    const priceDisplay = discount > 0
+                        ? `<span class="line-through text-gray-400 text-xs">$${basePrice.toFixed(2)}</span><br>
+                           <span class="text-emerald-700 font-bold">$${adjustedPrice.toFixed(2)}</span>
+                           <span class="text-xs bg-red-100 text-red-700 px-1 rounded">-${discount}%</span>`
+                        : `<span class="font-bold text-gray-800">$${basePrice.toFixed(2)}</span>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 font-mono text-sm">#${item.itemId}</td>
+                            <td class="p-3 font-medium text-gray-900">${item.itemName || 'Unknown Item'}</td>
+                            <td class="p-3 text-gray-600">${item.category || 'General'}</td>
+                            <td class="p-3"><span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2 py-0.5 rounded">${shelfLife} Day(s)</span></td>
+                            <td class="p-3 text-gray-600">$${basePrice.toFixed(2)}</td>
+                            <td class="p-3 font-bold ${riskScore > 3.5 ? 'text-red-600' : 'text-gray-700'}">${riskScore.toFixed(2)}</td>
+                            <td class="p-3">${priceDisplay}</td>
+                            <td class="p-3 text-xs text-blue-600 font-semibold">${item.action || 'Standard'}</td>
+                        </tr>
+                    `;
+                }
+            } catch (err) {
+                console.error("Failed to load full pricing details", err);
+            }
+        }
+
+        async function loadRevenueData() {
+            try {
+                const res = await fetch(`${API_URL}/orders`);
+                if (!res.ok) {
+                    renderRevenueTable([]);
+                    return;
+                }
+                renderRevenueTable(await res.json());
+            } catch (err) {
+                console.error('Could not load revenue history', err);
+                renderRevenueTable([]);
+            }
+        }
+
+        function renderRevenueTable(orders) {
+            const tbody = document.getElementById('revenue-table-body');
+            tbody.innerHTML = '';
+            let totalCollected = 0;
+            let totalDiscounts = 0;
+            let totalItemsCount = 0;
+
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400 text-xs italic">No checkout transactions recorded yet. Complete a POS checkout to see data here.</td></tr>`;
+                document.getElementById('rev-total-collected').textContent = '$0.00';
+                document.getElementById('rev-total-discounts').textContent = '$0.00';
+                document.getElementById('rev-total-items').textContent = '0';
+                return;
+            }
+
+            orders.forEach(order => {
+                const totalAmount = order.totalAmount || 0;
+                const discountSaved = order.totalDiscountSaved || 0;
+                const itemCount = order.itemCount || 0;
+                totalCollected += totalAmount;
+                totalDiscounts += discountSaved;
+                totalItemsCount += itemCount;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-mono text-xs font-bold text-gray-700">#ORD-${order.id}</td>
+                        <td class="p-3 text-xs text-gray-500">${order.timestamp || 'Just now'}</td>
+                        <td class="p-3 text-xs font-semibold text-gray-800">${order.summaryText || 'Bakery Items'}</td>
+                        <td class="p-3 text-gray-600">$${(order.baseValue || totalAmount).toFixed(2)}</td>
+                        <td class="p-3 text-emerald-600 font-semibold">-$${discountSaved.toFixed(2)}</td>
+                        <td class="p-3 text-right font-bold text-gray-900">$${totalAmount.toFixed(2)}</td>
+                    </tr>`;
+            });
+
+            document.getElementById('rev-total-collected').textContent = `$${totalCollected.toFixed(2)}`;
+            document.getElementById('rev-total-discounts').textContent = `$${totalDiscounts.toFixed(2)}`;
+            document.getElementById('rev-total-items').textContent = totalItemsCount;
+        }
+
+        async function loadWeatherDisplay() {
+            try {
+                const res = await fetch(`${API_URL}/weather/current`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const badge = document.getElementById('weather-badge');
+                    const banner = document.getElementById('rain-approval-banner');
+                    const cardCondition = document.getElementById('weather-card-condition');
+                    const cardPenalty = document.getElementById('weather-card-penalty');
+                    const cardIcon = document.getElementById('weather-icon-symbol');
+                    const cardStatus = document.getElementById('weather-status-pill');
+                    const cardApproval = document.getElementById('weather-card-approval');
+                    const condition = data.condition || 'Clear';
+                    let icon = "☀️";
+                    const isRaining = condition.toLowerCase().includes("rain");
+
+                    cardCondition.textContent = condition;
+                    cardPenalty.textContent = `${data.penaltyMultiplier || 1.0}x`;
+
+                    if (isRaining) {
+                        icon = "🌧️";
+                        cardStatus.textContent = "Rain Emergency";
+                        cardStatus.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30";
+                        if (!rainDiscountApproved) {
+                            banner.classList.remove('hidden');
+                            cardApproval.classList.remove('hidden');
+                        } else {
+                            cardApproval.classList.add('hidden');
+                        }
+                    } else {
+                        banner.classList.add('hidden');
+                        cardApproval.classList.add('hidden');
+                        rainDiscountApproved = false;
+                        cardStatus.textContent = "Normal Conditions";
+                        cardStatus.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                    }
+                    cardIcon.textContent = icon;
+                    if (!isRaining && condition.toLowerCase().includes("cloud")) icon = "☁️";
+
+                    badge.textContent = `${icon} ${data.city}: ${condition}`;
+                }
+            } catch (e) {
+                console.error("Could not load weather UI banner", e);
+            }
+        }
+
+        function approveRainDiscount() {
+            rainDiscountApproved = true;
+            document.getElementById('rain-approval-banner').classList.add('hidden');
+            document.getElementById('weather-card-approval').classList.add('hidden');
+            alert("Rain emergency discount approved! Prices dropped by 50%.");
+            loadDashboardData();
+        }
+
+        function dismissRainDiscount() {
+            document.getElementById('rain-approval-banner').classList.add('hidden');
+            document.getElementById('weather-card-approval').classList.add('hidden');
+        }
+
+        let posProductsData = [];
+
+        async function loadPOSProducts() {
+            try {
+                const res = await fetch(`${API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
+                if (!res.ok) return;
+                posProductsData = await res.json();
+                renderPOSProductTable(posProductsData);
+            } catch (err) {
+                console.error('Failed to load POS products', err);
+            }
+        }
+
+        function renderPOSProductTable(items) {
+            const tbody = document.getElementById('pos-product-tbody');
+            tbody.innerHTML = '';
+            document.getElementById('pos-item-count').textContent = `${items.length} products available`;
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500 text-xs">No products match your search.</td></tr>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const basePrice = item.basePrice || 0;
+                const adjustedPrice = item.adjustedPrice !== undefined ? item.adjustedPrice : basePrice;
+                const discount = item.discountPercentage || 0;
+                const stock = item.currentQuantity || 0;
+                const priceHTML = discount > 0
+                    ? `<span class="line-through text-gray-400 text-xs">$${basePrice.toFixed(2)}</span>
+                       <span class="text-emerald-700 font-bold ml-1">$${adjustedPrice.toFixed(2)}</span>
+                       <span class="text-[10px] bg-red-100 text-red-700 px-1 rounded">-${discount}%</span>`
+                    : `<span class="font-bold text-gray-800">$${basePrice.toFixed(2)}</span>`;
+                const safeName = (item.itemName || 'Unknown Item').replace(/'/g, "\\'");
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 font-medium text-gray-900">${item.itemName || 'Unknown Item'}</td>
+                        <td class="p-3 text-xs text-gray-600">${item.category || 'Bakery'}</td>
+                        <td class="p-3">${priceHTML}</td>
+                        <td class="p-3 text-xs font-semibold ${stock <= 5 ? 'text-red-600' : 'text-gray-700'}">${stock} left</td>
+                        <td class="p-3 text-center"><input type="number" id="qty-${item.itemId}" value="1" min="1" max="${stock}" class="w-16 px-2 py-1 border rounded text-center text-xs focus:ring-2 focus:ring-amber-500"></td>
+                        <td class="p-3 text-right"><button onclick="addPOSItemToCart(${item.itemId}, '${safeName}', ${adjustedPrice}, ${stock})" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow">Add 🛒</button></td>
+                    </tr>`;
+            });
+        }
+
+        function filterPOSProducts() {
+            const query = document.getElementById('pos-search-input').value.toLowerCase();
+            renderPOSProductTable(posProductsData.filter(item =>
+                (item.itemName || '').toLowerCase().includes(query)));
+        }
+
+        async function addPOSItemToCart(itemId, itemName, price, maxStock) {
+            const qtyInput = document.getElementById(`qty-${itemId}`);
+            const qty = parseInt(qtyInput.value) || 1;
+            try {
+                const res = await fetch(`${API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
+                if (!res.ok) throw new Error(`Failed to load evaluated inventory (${res.status})`);
+                const evaluatedItem = (await res.json()).find(item => item.itemId === itemId);
+                if (!evaluatedItem) {
+                    alert('Item not found in evaluated inventory.');
+                    return;
+                }
+
+                const latestStock = evaluatedItem.currentQuantity || 0;
+                const latestPrice = evaluatedItem.adjustedPrice !== undefined
+                    ? evaluatedItem.adjustedPrice
+                    : evaluatedItem.basePrice !== undefined ? evaluatedItem.basePrice : price;
+                const latestName = evaluatedItem.itemName || itemName;
+                if (qty > latestStock) {
+                    alert(`Cannot add ${qty}. Only ${latestStock} left in stock!`);
+                    return;
+                }
+
+                const existing = cart.find(item => item.inventoryId === itemId);
+                if (existing) {
+                    if (existing.quantity + qty > latestStock) {
+                        alert(`Total quantity exceeds available stock (${latestStock}).`);
+                        return;
+                    }
+                    existing.quantity += qty;
+                    existing.price = latestPrice;
+                    existing.originalPrice = evaluatedItem.basePrice !== undefined
+                        ? evaluatedItem.basePrice : latestPrice;
+                } else {
+                    cart.push({
+                        inventoryId: itemId,
+                        name: latestName,
+                        price: latestPrice,
+                        originalPrice: evaluatedItem.basePrice !== undefined
+                            ? evaluatedItem.basePrice : latestPrice,
+                        quantity: qty
+                    });
+                }
+                renderCart();
+                qtyInput.value = 1;
+            } catch (err) {
+                console.error('Failed to add item to cart with dynamic pricing', err);
+                alert('Unable to load the latest item price. Please try again.');
+            }
+        }
+
+        function renderCart() {
+            let cartList = document.getElementById('cart-items-container');
+            let totalElem = document.getElementById('cart-total-amount');
+            cartList.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartList.innerHTML = `<p class="text-gray-400 text-sm italic">Cart is empty</p>`;
+                totalElem.textContent = '$0.00';
+                return;
+            }
+
+            let totalAmount = 0;
+            cart.forEach((item, index) => {
+                let subtotal = item.price * item.quantity;
+                totalAmount += subtotal;
+
+                cartList.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded border text-sm">
+                        <div>
+                            <p class="font-semibold">${item.name} x ${item.quantity}</p>
+                            <p class="text-xs text-gray-500">$${item.price.toFixed(2)} each</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-emerald-700">$${subtotal.toFixed(2)}</span>
+                            <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700 font-bold text-xs px-1.5 py-0.5 bg-red-50 rounded border border-red-200">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            totalElem.textContent = `$${totalAmount.toFixed(2)}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        async function completeCheckout() {
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart })
+                });
+
+                if (!response.ok) {
+                    alert('Checkout failed on server.');
+                    return;
+                }
+
+                alert('Checkout completed successfully! Stock deducted and revenue recorded.');
+                cart = [];
+                renderCart();
+                loadDashboardData();
+                loadPOSProducts();
+                loadRevenueData();
+            } catch (err) {
+                console.error('Checkout network error', err);
+            }
+        }
+
+        checkStoreStatus();
+        loadDashboardData();
+    </script>
+</body>
+</html>
