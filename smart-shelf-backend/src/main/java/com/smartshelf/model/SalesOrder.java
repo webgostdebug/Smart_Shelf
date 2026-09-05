@@ -18,6 +18,10 @@ public class SalesOrder {
     private double totalDiscountSaved;
     private double totalAmount;
 
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public LocalDateTime getTimestamp() { return timestamp; }
@@ -32,4 +36,6 @@ public class SalesOrder {
     public void setTotalDiscountSaved(double totalDiscountSaved) { this.totalDiscountSaved = totalDiscountSaved; }
     public double getTotalAmount() { return totalAmount; }
     public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
+    public Customer getCustomer() { return customer; }
+    public void setCustomer(Customer customer) { this.customer = customer; }
 }

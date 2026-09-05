@@ -3,7 +3,9 @@ package com.smartshelf.controller;
 import com.smartshelf.model.InventoryItem;
 import com.smartshelf.model.Product;
 import com.smartshelf.model.SalesOrder;
+import com.smartshelf.model.Customer;
 import com.smartshelf.repository.InventoryRepository;
+import com.smartshelf.repository.CustomerRepository;
 import com.smartshelf.repository.OrderRepository;
 import com.smartshelf.repository.ProductRepository;
 import com.smartshelf.service.SmartShelfEngine;
@@ -32,6 +34,9 @@ public class ShelfController {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
     private SmartShelfEngine shelfEngine;
@@ -187,42 +192,55 @@ public class ShelfController {
         double liveWeatherPenalty = weatherService.fetchWeatherPenalty();
         String liveWeatherCondition = weatherService.fetchWeatherCondition();
 
-        List<Map<String, Object>> posters = new java.util.ArrayList<>();
+        List<Map<String, Object>> discountedItems = new java.util.ArrayList<>();
         for (InventoryItem item : items) {
             Map<String, Object> evaluation = shelfEngine.evaluateItem(
                     item, liveWeatherPenalty, liveWeatherCondition, rainDiscountApproved, 1.0);
-            double discount = Double.parseDouble(
-                    evaluation.getOrDefault("discountPercentage", 0.0).toString());
+            double discount = 0.0;
+            if (evaluation.containsKey("discountPercentage")) {
+                discount = Double.parseDouble(evaluation.get("discountPercentage").toString());
+            } else if (evaluation.containsKey("discount")) {
+                discount = Double.parseDouble(evaluation.get("discount").toString());
+            }
 
             if (discount > 0) {
-                Map<String, Object> poster = new java.util.HashMap<>();
-                poster.put("itemId", item.getId());
-                poster.put("itemName", item.getProduct() != null ? item.getProduct().getName() : "Unknown Item");
-                poster.put("category", item.getProduct() != null ? item.getProduct().getCategory() : "Bakery");
-                poster.put("basePrice", item.getProduct() != null ? item.getProduct().getBasePrice() : 0.0);
-                poster.put("adjustedPrice", evaluation.get("adjustedPrice"));
-                poster.put("discountPercentage", discount);
-                poster.put("riskScore", evaluation.get("riskScore"));
-                poster.put("ruleName", evaluation.get("ruleName"));
-
-                String slogan = "Fresh Surplus Markdown — Grab It Before It's Gone!";
-                if (discount >= 50) {
-                    slogan = "⚡ FLASH SALE: 50% OFF CLOSEOUT! ⚡";
-                } else if (discount >= 25) {
-                    slogan = "🔥 SPECIAL MARKDOWN — LIMITED TIME! 🔥";
-                } else {
-                    slogan = "🌿 SMART SHELF SUSTAINABLE SAVINGS 🌿";
-                }
-                poster.put("slogan", slogan);
-                posters.add(poster);
+                Map<String, Object> itemMap = new java.util.HashMap<>();
+                itemMap.put("itemId", item.getId());
+                itemMap.put("itemName", item.getProduct() != null ? item.getProduct().getName() : "Unknown Item");
+                itemMap.put("category", item.getProduct() != null ? item.getProduct().getCategory() : "Bakery");
+                itemMap.put("basePrice", item.getProduct() != null ? item.getProduct().getBasePrice() : 0.0);
+                itemMap.put("adjustedPrice", evaluation.get("adjustedPrice"));
+                itemMap.put("discountPercentage", discount);
+                itemMap.put("riskScore", evaluation.get("riskScore"));
+                discountedItems.add(itemMap);
             }
         }
-        return ResponseEntity.ok(posters);
+
+        List<Map<String, Object>> megaPosters = new java.util.ArrayList<>();
+        int batchSize = 10;
+        int batchNumber = 1;
+        for (int i = 0; i < discountedItems.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, discountedItems.size());
+            Map<String, Object> megaPoster = new java.util.HashMap<>();
+            megaPoster.put("batchId", batchNumber++);
+            megaPoster.put("slogan", "MEGA FLASH SALE: ACCUMULATED CLOSEOUT BATCH");
+            megaPoster.put("itemCount", end - i);
+            megaPoster.put("items", discountedItems.subList(i, end));
+            megaPosters.add(megaPoster);
+        }
+        return ResponseEntity.ok(megaPosters);
     }
 
     @GetMapping({"/orders", "/shelf/orders"})
     public ResponseEntity<List<SalesOrder>> getAllOrders() {
         return ResponseEntity.ok(orderRepository.findAll());
+    }
+
+    @GetMapping("/customers/lookup")
+    public ResponseEntity<Customer> lookupCustomer(@RequestParam String phone) {
+        return customerRepository.findByPhone(phone)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping({"/checkout", "/shelf/checkout"})
@@ -231,6 +249,19 @@ public class ShelfController {
         List<Map<String, Object>> cartItems = (List<Map<String, Object>>) checkoutPayload.get("items");
         if (cartItems == null || cartItems.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Cart is empty"));
+        }
+
+        String customerName = (String) checkoutPayload.getOrDefault("customerName", "Walk-in Customer");
+        String customerPhone = (String) checkoutPayload.getOrDefault("customerPhone", "");
+        Customer customer = null;
+        if (customerPhone != null && !customerPhone.isBlank()) {
+            customer = customerRepository.findByPhone(customerPhone)
+                    .orElseGet(() -> {
+                        Customer newCustomer = new Customer();
+                        newCustomer.setName(customerName);
+                        newCustomer.setPhone(customerPhone);
+                        return customerRepository.save(newCustomer);
+                    });
         }
 
         double totalAmount = 0.0;
@@ -265,6 +296,7 @@ public class ShelfController {
         order.setTotalAmount(totalAmount);
         order.setBaseValue(baseValue);
         order.setTotalDiscountSaved(Math.max(0, baseValue - totalAmount));
+        order.setCustomer(customer);
         orderRepository.save(order);
 
         return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));

@@ -8,6 +8,20 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
+    <!-- Cinematic Storm & Lightning Overlay -->
+    <div id="storm-container" class="fixed inset-0 pointer-events-none z-50 hidden transition-opacity duration-700 opacity-0 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center">
+        <canvas id="storm-canvas" class="absolute inset-0 w-full h-full"></canvas>
+        <!-- Lightning Flash Layer -->
+        <div id="lightning-flash" class="absolute inset-0 bg-white pointer-events-none" style="opacity: 0; transition: opacity 50ms ease-in-out;"></div>
+
+        <!-- Simple Text Message in the Middle -->
+        <div class="relative z-10 text-center px-4">
+            <p class="text-white text-2xl md:text-3xl font-bold tracking-wide">
+                It's time to drop
+            </p>
+        </div>
+    </div>
+
     <!-- Navigation Bar Container -->
     <header class="bg-amber-900 text-white shadow-md p-4">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
@@ -91,6 +105,17 @@
                 </div>
             </div>
 
+            <!-- Quick Jump Navigation Toolbar -->
+            <div class="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Quick Jump:</span>
+                <a href="#high-risk-section" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                    <span>🔥</span> High-Risk Analysis
+                </a>
+                <a href="#live-stock-section" class="bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                    <span>🥖</span> Live Shelf Stock
+                </a>
+            </div>
+
             <!-- Existing Stat Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -148,13 +173,13 @@
             </div>
 
             <!-- Live Shelf Stock Monitor Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+            <div id="live-stock-section" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4 scroll-mt-6">
                 <div class="flex justify-between items-center">
                     <div>
                         <h3 class="text-base font-bold text-gray-800">Live Shelf Stock & Quantities</h3>
                         <p class="text-xs text-gray-500">Real-time count of items remaining on the physical shelves.</p>
                     </div>
-                    <button onclick="loadDashboardData()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
+                    <button onclick="handleButtonAction(this, () => loadDashboardData())" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
                         🔄 Refresh Stock
                     </button>
                 </div>
@@ -178,10 +203,10 @@
             </div>
 
             <!-- Live Shelf Overview Table -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div id="high-risk-section" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 scroll-mt-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-700">Live Shelf Status & High Risk Analysis (>3.5)</h2>
-                    <button onclick="loadDashboardData()" class="text-sm bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition">Refresh Data</button>
+                    <button onclick="handleButtonAction(this, () => loadDashboardData())" class="text-sm bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition">Refresh Data</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -298,12 +323,12 @@
                     <h2 class="text-xl font-bold">Active Digital Flash Posters</h2>
                     <p class="text-xs text-amber-200 mt-1">Automatically generated promotional signage for items undergoing dynamic markdowns.</p>
                 </div>
-                <button onclick="loadFlashPosters()" class="bg-white text-amber-900 hover:bg-amber-50 text-xs font-bold px-4 py-2 rounded-lg shadow transition">
+                <button onclick="handleButtonAction(this, () => loadFlashPosters())" class="bg-white text-amber-900 hover:bg-amber-50 text-xs font-bold px-4 py-2 rounded-lg shadow transition">
                     Refresh Posters
                 </button>
             </div>
 
-            <div id="flash-posters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="flash-posters-container" class="space-y-6"></div>
         </section>
 
         <!-- Sales & Revenue History Tab -->
@@ -389,6 +414,26 @@
 
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4 flex flex-col justify-between">
                     <div>
+                        <div class="border-b pb-4 mb-4 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Customer Details (Indian 10-Digit Format)</h3>
+                                <span id="customer-status-badge" class="text-xs font-semibold text-gray-400">Walk-in Mode</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number (10 Digits)</label>
+                                    <input type="text" id="pos-customer-phone" maxlength="10" placeholder="e.g., 9876543210"
+                                           oninput="handlePhoneInput(this)"
+                                           class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                    <p id="customer-helper-text" class="text-[10px] text-gray-400 mt-1">Type 10 digits to search existing customer database.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Customer Name</label>
+                                    <input type="text" id="pos-customer-name" placeholder="e.g., Raghul S"
+                                           class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-gray-50/50">
+                                </div>
+                            </div>
+                        </div>
                         <h3 class="text-base font-bold text-gray-800 mb-3">Current Order Cart</h3>
                         <div id="cart-items-container" class="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                             <p class="text-gray-400 text-xs italic">Cart is empty</p>
@@ -400,7 +445,7 @@
                             <span>Total Amount:</span>
                             <span id="cart-total-amount" class="text-emerald-700">$0.00</span>
                         </div>
-                        <button onclick="completeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow text-sm">
+                        <button onclick="handleButtonAction(this, () => completeCheckout())" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow text-sm">
                             Complete Checkout & Deduct Stock
                         </button>
                     </div>
@@ -413,6 +458,33 @@
     <script>
         const API_URL = 'http://localhost:8080/api/shelf';
 
+        async function handleButtonAction(buttonElement, asyncAction) {
+            if (!buttonElement || buttonElement.disabled) return;
+
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.disabled = true;
+            buttonElement.classList.add('opacity-75', 'cursor-not-allowed');
+            buttonElement.innerHTML = `
+                <span class="inline-flex items-center justify-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Processing...
+                </span>
+            `;
+
+            try {
+                await asyncAction();
+            } catch (error) {
+                console.error('Button action failed:', error);
+            } finally {
+                buttonElement.disabled = false;
+                buttonElement.classList.remove('opacity-75', 'cursor-not-allowed');
+                buttonElement.innerHTML = originalHTML;
+            }
+        }
+
         // Store closing configuration (Default: 21:00 / 9:00 PM)
         let closingHour = 21;
         let closingMinute = 0;
@@ -423,6 +495,98 @@
         // Global Cart Array & Inventory Cache for Multi-Item Checkout
         let cart = [];
         let availableInventory = [];
+
+        let stormAnimId = null;
+        let lightningInterval = null;
+        let isStormRunning = false;
+
+        function triggerCinematicStorm() {
+            if (isStormRunning) return;
+
+            const container = document.getElementById('storm-container');
+            const canvas = document.getElementById('storm-canvas');
+            const flash = document.getElementById('lightning-flash');
+            if (!container || !canvas || !flash) return;
+
+            isStormRunning = true;
+            container.classList.remove('hidden');
+            setTimeout(() => container.classList.remove('opacity-0'), 10);
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            const drops = [];
+            const maxDrops = 350;
+
+            for (let i = 0; i < maxDrops; i++) {
+                drops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    length: Math.random() * 35 + 15,
+                    speed: Math.random() * 18 + 12,
+                    width: Math.random() * 1.4 + 0.4,
+                    opacity: Math.random() * 0.4 + 0.15
+                });
+            }
+
+            function renderStorm() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let drop of drops) {
+                    ctx.beginPath();
+                    ctx.lineWidth = drop.width;
+                    ctx.strokeStyle = `rgba(175, 210, 255, ${drop.opacity})`;
+                    ctx.lineCap = 'round';
+                    ctx.moveTo(drop.x, drop.y);
+                    ctx.lineTo(drop.x - 5, drop.y + drop.length);
+                    ctx.stroke();
+                    drop.y += drop.speed;
+                    drop.x -= 1.5;
+                    if (drop.y > canvas.height) {
+                        drop.y = -40;
+                        drop.x = Math.random() * canvas.width;
+                    }
+                }
+                stormAnimId = requestAnimationFrame(renderStorm);
+            }
+
+            renderStorm();
+
+            const strikeLightning = () => {
+                flash.style.opacity = '0.9';
+                setTimeout(() => {
+                    flash.style.opacity = '0';
+                }, 80);
+
+                if (Math.random() > 0.3) {
+                    setTimeout(() => {
+                        flash.style.opacity = '0.45';
+                        setTimeout(() => {
+                            flash.style.opacity = '0';
+                        }, 60);
+                    }, 120);
+                }
+            };
+
+            setTimeout(strikeLightning, 500);
+            lightningInterval = setInterval(strikeLightning, 1200);
+
+            setTimeout(() => {
+                cancelAnimationFrame(stormAnimId);
+                clearInterval(lightningInterval);
+                container.classList.add('opacity-0');
+                setTimeout(() => {
+                    container.classList.add('hidden');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    isStormRunning = false;
+                }, 700);
+            }, 5000);
+        }
+
+        function checkWeatherAndTrigger(conditionString) {
+            if (conditionString && conditionString.toLowerCase().includes('rain')) {
+                triggerCinematicStorm();
+            }
+        }
 
         // Function to check store status and handle closing prompts
         function checkStoreStatus() {
@@ -592,6 +756,7 @@
 
             // 5. Trigger corresponding data loaders
             if (tabName === 'dashboard' && typeof loadDashboardData === 'function') loadDashboardData();
+            if (tabName === 'catalog' && typeof loadCatalogData === 'function') loadCatalogData();
             if (tabName === 'pricing' && typeof loadPricingDetails === 'function') loadPricingDetails();
             if (tabName === 'billing' && typeof loadPOSProducts === 'function') loadPOSProducts();
             if (tabName === 'revenue' && typeof loadRevenueData === 'function') loadRevenueData();
@@ -600,51 +765,70 @@
 
         async function loadFlashPosters() {
             try {
-                const res = await fetch(`${API_URL}/shelf/posters?rainDiscountApproved=${rainDiscountApproved}`);
+                const res = await fetch(`${API_URL}/shelf/posters`);
                 if (!res.ok) return;
                 const posters = await res.json();
-                const grid = document.getElementById('flash-posters-grid');
-                grid.innerHTML = '';
+                const container = document.getElementById('flash-posters-container');
+                if (!container) return;
 
                 if (posters.length === 0) {
-                    grid.innerHTML = `
-                        <div class="col-span-full bg-white p-10 rounded-2xl text-center border border-gray-100">
-                            <p class="text-gray-400 text-sm italic">No active price drops right now. Posters appear automatically when items enter discount tiers.</p>
+                    container.innerHTML = `
+                        <div class="bg-white p-12 rounded-2xl text-center border border-gray-100 shadow-sm">
+                            <p class="text-sm text-gray-400 font-semibold">No active markdowns to accumulate into posters right now.</p>
                         </div>`;
                     return;
                 }
 
-                posters.forEach(p => {
-                    const basePrice = Number(p.basePrice) || 0;
-                    const adjustedPrice = Number(p.adjustedPrice) || 0;
-                    const discount = Number(p.discountPercentage) || 0;
-                    grid.innerHTML += `
-                        <div class="bg-gradient-to-br from-cyan-500 via-cyan-600 to-blue-700 text-white rounded-3xl shadow-xl overflow-hidden flex flex-col justify-between p-6 relative border-4 border-yellow-400/80 transform hover:-translate-y-1 transition duration-300">
-                            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-yellow-400/20 rounded-full blur-2xl pointer-events-none"></div>
-
-                            <div class="flex justify-between items-start z-10">
-                                <span class="bg-yellow-400 text-slate-900 font-black text-xs px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md">⚡ ${p.category || 'Bakery Flash'}</span>
-                                <div class="bg-red-600 text-white font-black text-sm px-3.5 py-1.5 rounded-2xl shadow-lg border-2 border-white/20 transform rotate-3">-${discount}% OFF</div>
-                            </div>
-
-                            <div class="my-6 text-center z-10 space-y-2">
-                                <div class="inline-block bg-yellow-400 text-slate-900 font-extrabold text-xs px-3 py-1 rounded-md shadow uppercase tracking-widest">Surplus Smart Save</div>
-                                <h3 class="text-3xl font-black tracking-tight text-white drop-shadow-md">${p.itemName || 'Unknown Item'}</h3>
-                                <p class="text-xs font-semibold text-cyan-100 italic bg-black/20 px-3 py-1.5 rounded-xl border border-white/10">"${p.slogan || ''}"</p>
-                            </div>
-
-                            <div class="bg-slate-900/40 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center justify-between z-10">
-                                <div>
-                                    <span class="text-[10px] text-cyan-200 uppercase font-bold tracking-wider block">Regular Price</span>
-                                    <span class="text-sm line-through text-cyan-300/80 font-bold">$${basePrice.toFixed(2)}</span>
+                container.innerHTML = `
+                    <div class="flex flex-row overflow-x-auto gap-6 pb-6 pt-2">
+                        ${posters.map(poster => `
+                            <div class="flex-shrink-0 w-[420px] bg-[#FFFDF9] border-4 border-amber-800/20 rounded-2xl shadow-xl p-5 relative overflow-hidden space-y-4 flex flex-col justify-between" style="aspect-ratio: 1 / 1.414;">
+                                <div class="flex justify-between items-center bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl p-4 shadow-md">
+                                    <div class="space-y-0.5">
+                                        <h3 class="font-serif text-lg font-black italic tracking-wider text-amber-100">Bake &amp; Bliss</h3>
+                                        <p class="text-[9px] uppercase tracking-widest text-amber-200 font-bold">Freshly Baked, Just For You</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="bg-white/10 text-amber-100 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300/30">Batch #${poster.batchId}</span>
+                                    </div>
                                 </div>
-                                <div class="text-right">
-                                    <span class="text-[10px] text-yellow-300 uppercase font-black tracking-wider block">Flash Price</span>
-                                    <span class="text-2xl font-black text-yellow-400 drop-shadow">$${adjustedPrice.toFixed(2)}</span>
+
+                                <div class="text-center space-y-0.5">
+                                    <h1 class="font-serif text-3xl font-black tracking-tight text-amber-900">PRICE DROP</h1>
+                                    <p class="text-[10px] font-bold text-amber-700 tracking-wide">✨ BIG FLAVORS. SMALLER PRICES! ✨</p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 flex-grow overflow-y-auto pr-1">
+                                    ${poster.items.map((item, index) => {
+                                        const itemNum = String(index + 1).padStart(2, '0');
+                                        const basePrice = Number(item.basePrice) || 0;
+                                        const adjustedPrice = Number(item.adjustedPrice) || 0;
+                                        const savings = (basePrice - adjustedPrice).toFixed(2);
+                                        return `
+                                            <div class="bg-white rounded-xl p-2 border border-amber-100 shadow-sm flex flex-col justify-between relative">
+                                                <span class="absolute top-1.5 left-1.5 bg-amber-700 text-white text-[9px] font-black px-1.5 py-0.5 rounded">${itemNum}</span>
+                                                <div class="text-center pt-3 pb-1"><h4 class="font-serif font-bold text-gray-800 text-xs italic truncate">${item.itemName}</h4></div>
+                                                <div class="text-center space-y-0.5 pt-1 border-t border-gray-100">
+                                                    <div class="flex justify-center items-center gap-1">
+                                                        <span class="line-through text-gray-400 font-bold text-[10px]">₹${basePrice.toFixed(2)}</span>
+                                                        <span class="text-xs font-black text-amber-700">₹${adjustedPrice.toFixed(2)}</span>
+                                                    </div>
+                                                    <span class="text-[9px] font-extrabold text-emerald-600 block uppercase">Save ₹${savings}</span>
+                                                </div>
+                                            </div>`;
+                                    }).join('')}
+                                </div>
+
+                                <div class="grid grid-cols-4 gap-1 bg-amber-50/50 p-2 rounded-xl border border-amber-100 text-center text-[9px] font-bold text-gray-700">
+                                    <div>🏅 Quality</div><div>🥖 Fresh</div><div>🌿 Pure</div><div>❤️ Love</div>
+                                </div>
+                                <div class="text-center bg-amber-500/10 border border-amber-600/30 rounded-xl p-2">
+                                    <h4 class="font-black text-amber-900 text-[10px] uppercase">⏰ LIMITED TIME OFFER - GRAB NOW!</h4>
                                 </div>
                             </div>
-                        </div>`;
-                });
+                        `).join('')}
+                    </div>
+                `;
             } catch (err) {
                 console.error("Failed to load flash posters", err);
             }
@@ -679,6 +863,10 @@
             } catch (err) {
                 console.error("Failed to load products", err);
             }
+        }
+
+        async function loadCatalogData() {
+            return loadProducts();
         }
 
         document.getElementById('productForm').addEventListener('submit', async (e) => {
@@ -946,6 +1134,7 @@
                     const condition = data.condition || 'Clear';
                     let icon = "☀️";
                     const isRaining = condition.toLowerCase().includes("rain");
+                    checkWeatherAndTrigger(condition);
 
                     cardCondition.textContent = condition;
                     cardPenalty.textContent = `${data.penaltyMultiplier || 1.0}x`;
@@ -1131,17 +1320,63 @@
             renderCart();
         }
 
+        async function handlePhoneInput(input) {
+            const phone = input.value.replace(/\D/g, '');
+            input.value = phone;
+
+            const nameInput = document.getElementById('pos-customer-name');
+            const helperText = document.getElementById('customer-helper-text');
+            const statusBadge = document.getElementById('customer-status-badge');
+
+            if (phone.length === 10) {
+                try {
+                    const res = await fetch(`${API_URL}/customers/lookup?phone=${phone}`);
+                    if (res.ok) {
+                        const customer = await res.json();
+                        nameInput.value = customer.name;
+                        nameInput.readOnly = true;
+                        nameInput.classList.add('bg-gray-100');
+                        helperText.innerText = 'Existing customer record found.';
+                        helperText.className = 'text-[10px] text-emerald-600 font-bold mt-1';
+                        statusBadge.innerText = 'Returning Customer';
+                        statusBadge.className = 'text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full';
+                    } else {
+                        nameInput.value = '';
+                        nameInput.readOnly = false;
+                        nameInput.classList.remove('bg-gray-100');
+                        helperText.innerText = 'New mobile number. Enter name to register profile.';
+                        helperText.className = 'text-[10px] text-amber-600 font-bold mt-1';
+                        statusBadge.innerText = 'New Customer';
+                        statusBadge.className = 'text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
+                    }
+                } catch (err) {
+                    console.error('Customer lookup failed', err);
+                }
+            } else {
+                nameInput.value = '';
+                nameInput.readOnly = false;
+                nameInput.classList.remove('bg-gray-100');
+                helperText.innerText = `Enter remaining ${10 - phone.length} digits to search database.`;
+                helperText.className = 'text-[10px] text-gray-400 mt-1';
+                statusBadge.innerText = 'Walk-in Mode';
+                statusBadge.className = 'text-xs font-semibold text-gray-400';
+            }
+        }
+
         async function completeCheckout() {
             if (cart.length === 0) {
                 alert('Cart is empty!');
                 return;
             }
 
+            const customerName = document.getElementById('pos-customer-name').value || 'Walk-in Customer';
+            const customerPhone = document.getElementById('pos-customer-phone').value || '';
+
             try {
                 const response = await fetch(`${API_URL}/checkout`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: cart })
+                    body: JSON.stringify({ customerName, customerPhone, items: cart })
                 });
 
                 if (!response.ok) {
@@ -1151,6 +1386,8 @@
 
                 alert('Checkout completed successfully! Stock deducted and revenue recorded.');
                 cart = [];
+                document.getElementById('pos-customer-name').value = '';
+                document.getElementById('pos-customer-phone').value = '';
                 renderCart();
                 loadDashboardData();
                 loadPOSProducts();
