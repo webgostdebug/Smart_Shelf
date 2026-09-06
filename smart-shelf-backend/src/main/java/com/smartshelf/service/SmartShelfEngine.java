@@ -11,15 +11,18 @@ import java.util.Map;
 @Service
 public class SmartShelfEngine {
 
-    // Define standard closing time: 9:00 PM (21:00)
-    private static final LocalTime CLOSING_TIME = LocalTime.of(21, 0);
+    private final StoreService storeService;
 
-            public Map<String, Object> evaluateItem(InventoryItem item, double weatherPenalty,
+    public SmartShelfEngine(StoreService storeService) {
+        this.storeService = storeService;
+    }
+
+    public Map<String, Object> evaluateItem(InventoryItem item, double weatherPenalty,
                 String weatherCondition, boolean rainDiscountApproved, double dayWeight) {
         LocalDateTime now = LocalDateTime.now();
         
-        // Target today's 9:00 PM closing time
-        LocalDateTime closingDateTime = LocalDateTime.of(now.toLocalDate(), CLOSING_TIME);
+        // Target today's configured closing time.
+        LocalDateTime closingDateTime = LocalDateTime.of(now.toLocalDate(), storeService.getClosingTime());
         
         // If it's already past 9 PM, target 9 PM tomorrow
         if (now.isAfter(closingDateTime)) {
