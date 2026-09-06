@@ -566,6 +566,7 @@
         let stormAnimId = null;
         let lightningInterval = null;
         let isStormRunning = false;
+        let rainEffectInitialized = false;
 
         function triggerCinematicStorm() {
             if (isStormRunning) return;
@@ -650,8 +651,17 @@
         }
 
         function checkWeatherAndTrigger(conditionString) {
-            if (conditionString && conditionString.toLowerCase().includes('rain')) {
+            const normalizedCondition = (conditionString || '').toLowerCase();
+            const isRaining = normalizedCondition.includes('rain')
+                || normalizedCondition.includes('drizzle')
+                || normalizedCondition.includes('storm');
+
+            if (isRaining && !rainEffectInitialized) {
                 triggerCinematicStorm();
+                rainEffectInitialized = true;
+                console.log('Rain effect triggered for the first time.');
+            } else if (!isRaining) {
+                rainEffectInitialized = false;
             }
         }
 
@@ -753,11 +763,13 @@
             const isOpen = currentTimeMinutes < closingTimeMinutes && !manualClosed;
 
             if (isOpen) {
-                manualClosed = true; 
+                manualClosed = true;
+                await toggleStoreOpenState(false);
                 await executeEodRollover();
                 alert("Shop has been closed.");
             } else {
-                manualClosed = false; 
+                manualClosed = false;
+                await toggleStoreOpenState(true);
                 closingHour = 21; 
                 closingMinute = 0;
                 if (currentHour >= 21) {
@@ -770,6 +782,35 @@
             document.getElementById('closing-prompt').classList.add('hidden');
             checkStoreStatus();
             loadDashboardData();
+        }
+
+        function updateStoreUIState(isOpen) {
+            manualClosed = !isOpen;
+            checkStoreStatus();
+        }
+
+        async function checkStoreStatusOnLoad() {
+            try {
+                const res = await fetch(`${API_URL}/api/store/status`);
+                if (!res.ok) return;
+                const data = await res.json();
+                updateStoreUIState(data.isOpen);
+            } catch (err) {
+                console.error('Failed to fetch store status', err);
+            }
+        }
+
+        async function toggleStoreOpenState(isOpen) {
+            try {
+                const res = await fetch(`${API_URL}/api/store/status?isOpen=${isOpen}`, {
+                    method: 'POST'
+                });
+                if (!res.ok) throw new Error(`Store status update failed with status ${res.status}`);
+                updateStoreUIState(isOpen);
+            } catch (err) {
+                console.error('Failed to update store state', err);
+                alert('Unable to save store status. Please try again.');
+            }
         }
 
         let liveShelfPollingInterval = null;
@@ -1745,6 +1786,8 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadCustomerStoreMenu();
+            checkStoreStatusOnLoad();
+            loadAdminOnlineOrders();
         });
 
         checkStoreStatus();

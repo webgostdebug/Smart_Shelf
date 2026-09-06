@@ -34,7 +34,13 @@ public class WeatherService {
 
     public double fetchWeatherPenalty() {
         String condition = fetchWeatherCondition().toLowerCase();
-        if (condition.contains("rain") || condition.contains("storm") || condition.contains("drizzle")) {
+        return getWeatherPenalty(condition);
+    }
+
+    public double getWeatherPenalty(String condition) {
+        String normalizedCondition = condition == null ? "" : condition.toLowerCase();
+        if (normalizedCondition.contains("rain") || normalizedCondition.contains("storm")
+                || normalizedCondition.contains("drizzle")) {
             return 1.5;
         }
         return 1.0;

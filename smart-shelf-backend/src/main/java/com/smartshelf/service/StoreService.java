@@ -24,8 +24,16 @@ public class StoreService {
         return storeClosed;
     }
 
+    public synchronized void setStoreClosed(boolean storeClosed) {
+        this.storeClosed = storeClosed;
+    }
+
     public synchronized LocalTime getClosingTime() {
         return closingTime;
+    }
+
+    public synchronized void setClosingTime(LocalTime closingTime) {
+        this.closingTime = closingTime;
     }
 
     public synchronized boolean shouldRunCalculations() {
