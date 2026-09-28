@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
+
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
     <!-- Cinematic Storm & Lightning Overlay -->
-    <div id="storm-container" class="fixed inset-0 pointer-events-none z-50 hidden transition-opacity duration-700 opacity-0 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center">
+    <div id="storm-container"
+        class="fixed inset-0 pointer-events-none z-50 hidden transition-opacity duration-700 opacity-0 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center">
         <canvas id="storm-canvas" class="absolute inset-0 w-full h-full"></canvas>
         <!-- Lightning Flash Layer -->
-        <div id="lightning-flash" class="absolute inset-0 bg-white pointer-events-none" style="opacity: 0; transition: opacity 50ms ease-in-out;"></div>
+        <div id="lightning-flash" class="absolute inset-0 bg-white pointer-events-none"
+            style="opacity: 0; transition: opacity 50ms ease-in-out;"></div>
 
         <!-- Simple Text Message in the Middle -->
         <div class="relative z-10 text-center px-4">
@@ -26,7 +30,7 @@
     <!-- Navigation Bar Container -->
     <header class="bg-amber-900 text-white shadow-md p-4">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            
+
             <!-- Logo & Title -->
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">🥖</span>
@@ -35,14 +39,29 @@
 
             <!-- Navigation Tabs (Single Row, Compact Spacing) -->
             <nav class="flex flex-wrap items-center gap-1.5 bg-amber-950/40 p-1.5 rounded-xl border border-amber-800">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 py-1.5 bg-amber-800 text-white font-semibold rounded-lg shadow text-xs transition">Dashboard</button>
-                <button onclick="switchTab('catalog')" id="nav-catalog" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Catalog & Restock</button>
-                <button onclick="switchTab('pricing')" id="nav-pricing" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Full Pricing & Details</button>
-                <button onclick="switchTab('billing')" id="nav-billing" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Billing & POS</button>
-                <button onclick="switchTab('revenue')" id="nav-revenue" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Sales & Revenue</button>
-                <button onclick="switchTab('posters')" id="nav-posters" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Flash Posters</button>
-                <button onclick="switchTab('orders')" id="nav-orders" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Online Orders</button>
-                <button onclick="switchTab('customer-store')" id="nav-customer-store" class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Customer Store</button>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard"
+                    class="px-3 py-1.5 bg-amber-800 text-white font-semibold rounded-lg shadow text-xs transition">Dashboard</button>
+                <button onclick="switchTab('catalog')" id="nav-catalog"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Catalog
+                    & Restock</button>
+                <button onclick="switchTab('pricing')" id="nav-pricing"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Full
+                    Pricing & Details</button>
+                <button onclick="switchTab('billing')" id="nav-billing"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Billing
+                    & POS</button>
+                <button onclick="switchTab('revenue')" id="nav-revenue"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Sales
+                    & Revenue</button>
+                <button onclick="switchTab('posters')" id="nav-posters"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Flash
+                    Posters</button>
+                <button onclick="switchTab('orders')" id="nav-orders"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Online
+                    Orders</button>
+                <button onclick="switchTab('customer-store')" id="nav-customer-store"
+                    class="px-3 py-1.5 bg-transparent hover:bg-amber-800/50 text-amber-200 font-semibold rounded-lg text-xs transition">Customer
+                    Store</button>
             </nav>
 
         </div>
@@ -52,7 +71,7 @@
 
         <!-- TAB 1: DASHBOARD & ANALYTICS -->
         <section id="dashboard-tab" class="tab-content space-y-6">
-            
+
             <!-- Closing Time Banner with Manual Input -->
             <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm space-y-3">
                 <div class="flex justify-between items-center flex-wrap gap-3">
@@ -60,48 +79,68 @@
                         <span class="text-3xl">🌤️</span>
                         <div>
                             <div class="flex items-center space-x-2 flex-wrap gap-2">
-                                <h4 class="font-semibold text-amber-900">Closing Target: <span id="display-closing-time">9:00 PM</span></h4>
-                                <input type="time" id="manual-closing-time-input" value="21:00" class="border border-amber-300 rounded px-2 py-1 text-sm font-bold text-amber-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                <button onclick="setManualClosingTime()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Set Time</button>
-                                <span id="store-status" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-700">Checking...</span>
-                                <span id="weather-badge" class="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">🌦️ Loading Weather...</span>
+                                <h4 class="font-semibold text-amber-900">Closing Target: <span
+                                        id="display-closing-time">9:00 PM</span></h4>
+                                <input type="time" id="manual-closing-time-input" value="21:00"
+                                    class="border border-amber-300 rounded px-2 py-1 text-sm font-bold text-amber-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <button onclick="setManualClosingTime()"
+                                    class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Set
+                                    Time</button>
+                                <span id="store-status"
+                                    class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-700">Checking...</span>
+                                <span id="weather-badge"
+                                    class="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">🌦️
+                                    Loading Weather...</span>
                             </div>
-                            <p class="text-xs text-amber-700 mt-0.5">Risk scores dynamically scale using live weather forecasts and closing time remaining.</p>
+                            <p class="text-xs text-amber-700 mt-0.5">Risk scores dynamically scale using live weather
+                                forecasts and closing time remaining.</p>
                         </div>
                     </div>
-                    
+
                     <!-- Single Smart Toggle Button -->
-                    <button id="toggle-shop-btn" onclick="toggleShopStatus()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition">
+                    <button id="toggle-shop-btn" onclick="toggleShopStatus()"
+                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition">
                         🚨 Close Shop Now
                     </button>
                 </div>
 
                 <!-- Hidden Extension Prompt (Appears when closing time is reached naturally) -->
-                <div id="closing-prompt" class="hidden bg-white border-2 border-amber-400 p-3 rounded-lg flex justify-between items-center shadow-md animate-pulse">
+                <div id="closing-prompt"
+                    class="hidden bg-white border-2 border-amber-400 p-3 rounded-lg flex justify-between items-center shadow-md animate-pulse">
                     <div>
-                        <p class="text-sm font-bold text-amber-900">Closing time reached! Do you want to keep the shop open longer?</p>
+                        <p class="text-sm font-bold text-amber-900">Closing time reached! Do you want to keep the shop
+                            open longer?</p>
                         <p class="text-xs text-gray-600">Choose to extend or close down for the day.</p>
                     </div>
                     <div class="space-x-2">
-                        <button onclick="extendStoreTime(30)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Extend 30 Mins</button>
-                        <button onclick="confirmCloseShop()" class="bg-gray-700 hover:bg-gray-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Close Shop</button>
+                        <button onclick="extendStoreTime(30)"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Extend
+                            30 Mins</button>
+                        <button onclick="confirmCloseShop()"
+                            class="bg-gray-700 hover:bg-gray-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Close
+                            Shop</button>
                     </div>
                 </div>
 
                 <!-- Rain Discount Approval Banner (Initially Hidden) -->
-                <div id="rain-approval-banner" class="hidden bg-blue-50 border border-blue-300 p-3 rounded-lg flex justify-between items-center mt-2">
+                <div id="rain-approval-banner"
+                    class="hidden bg-blue-50 border border-blue-300 p-3 rounded-lg flex justify-between items-center mt-2">
                     <div class="flex items-center space-x-2">
                         <span class="text-xl">🌧️</span>
                         <div>
-                            <p class="text-xs font-bold text-blue-900">Rain Detected in Chennai! Weather Emergency Active.</p>
-                            <p class="text-xs text-blue-700">Would you like to authorize an aggressive 50% price drop on surplus stock?</p>
+                            <p class="text-xs font-bold text-blue-900">Rain Detected in Chennai! Weather Emergency
+                                Active.</p>
+                            <p class="text-xs text-blue-700">Would you like to authorize an aggressive 50% price drop on
+                                surplus stock?</p>
                         </div>
                     </div>
                     <div class="space-x-2">
-                        <button onclick="approveRainDiscount()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow">
+                        <button onclick="approveRainDiscount()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow">
                             ✅ Approve 50% Discount
                         </button>
-                        <button onclick="dismissRainDiscount()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 text-xs font-semibold px-2 py-1.5 rounded transition">
+                        <button onclick="dismissRainDiscount()"
+                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 text-xs font-semibold px-2 py-1.5 rounded transition">
                             Dismiss
                         </button>
                     </div>
@@ -111,10 +150,12 @@
             <!-- Quick Jump Navigation Toolbar -->
             <div class="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Quick Jump:</span>
-                <a href="#high-risk-section" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                <a href="#high-risk-section"
+                    class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
                     <span>🔥</span> High-Risk Analysis
                 </a>
-                <a href="#live-stock-section" class="bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                <a href="#live-stock-section"
+                    class="bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
                     <span>🥖</span> Live Shelf Stock
                 </a>
             </div>
@@ -136,7 +177,8 @@
             </div>
 
             <!-- Modern Neumorphic / Sleek Weather Widget Card -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700/50 space-y-4">
+            <div
+                class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700/50 space-y-4">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
                         <span class="text-2xl" id="weather-icon-symbol">⛅</span>
@@ -145,7 +187,8 @@
                             <p class="text-[10px] text-slate-400">Live Smart Shelf Trigger</p>
                         </div>
                     </div>
-                    <span id="weather-status-pill" class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Active</span>
+                    <span id="weather-status-pill"
+                        class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Active</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 text-xs bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/40">
@@ -154,21 +197,26 @@
                         <span id="weather-card-condition" class="font-bold text-slate-100 text-sm">Loading...</span>
                     </div>
                     <div>
-                        <span class="text-slate-400 block text-[10px] uppercase tracking-wider">Penalty Multiplier</span>
+                        <span class="text-slate-400 block text-[10px] uppercase tracking-wider">Penalty
+                            Multiplier</span>
                         <span id="weather-card-penalty" class="font-bold text-amber-400 text-sm">1.0x</span>
                     </div>
                 </div>
 
-                <div id="weather-card-approval" class="hidden bg-blue-950/80 border border-blue-500/40 p-3.5 rounded-xl space-y-2.5">
+                <div id="weather-card-approval"
+                    class="hidden bg-blue-950/80 border border-blue-500/40 p-3.5 rounded-xl space-y-2.5">
                     <div class="flex items-center space-x-2">
                         <span class="text-base">🌧️</span>
-                        <p class="text-xs font-semibold text-blue-200">Rain Emergency Triggered! Authorize 50% Off Flash Sale?</p>
+                        <p class="text-xs font-semibold text-blue-200">Rain Emergency Triggered! Authorize 50% Off Flash
+                            Sale?</p>
                     </div>
                     <div class="flex space-x-2 pt-1">
-                        <button onclick="approveRainDiscount()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg transition shadow">
+                        <button onclick="approveRainDiscount()"
+                            class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg transition shadow">
                             ✅ Approve 50% Off
                         </button>
-                        <button onclick="dismissRainDiscount()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-3 py-1.5 rounded-lg transition">
+                        <button onclick="dismissRainDiscount()"
+                            class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-3 py-1.5 rounded-lg transition">
                             Dismiss
                         </button>
                     </div>
@@ -176,13 +224,15 @@
             </div>
 
             <!-- Live Shelf Stock Monitor Card -->
-            <div id="live-stock-section" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4 scroll-mt-6">
+            <div id="live-stock-section"
+                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4 scroll-mt-6">
                 <div class="flex justify-between items-center">
                     <div>
                         <h3 class="text-base font-bold text-gray-800">Live Shelf Stock & Quantities</h3>
                         <p class="text-xs text-gray-500">Real-time count of items remaining on the physical shelves.</p>
                     </div>
-                    <button onclick="handleButtonAction(this, () => loadDashboardData())" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
+                    <button onclick="handleButtonAction(this, () => loadDashboardData())"
+                        class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
                         🔄 Refresh Stock
                     </button>
                 </div>
@@ -209,7 +259,9 @@
             <div id="high-risk-section" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 scroll-mt-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-700">Live Shelf Status & High Risk Analysis (>3.5)</h2>
-                    <button onclick="handleButtonAction(this, () => loadDashboardData())" class="text-sm bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition">Refresh Data</button>
+                    <button onclick="handleButtonAction(this, () => loadDashboardData())"
+                        class="text-sm bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition">Refresh
+                        Data</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -233,57 +285,156 @@
 
         <!-- TAB: ADMIN ONLINE ORDERS -->
         <section id="orders-tab" class="tab-content hidden space-y-6 max-w-7xl mx-auto">
-            <div class="flex justify-between items-center bg-white p-6 rounded-3xl border border-amber-100 shadow-sm gap-4">
+            <div
+                class="flex justify-between items-center bg-white p-6 rounded-3xl border border-amber-100 shadow-sm gap-4">
                 <div>
                     <h2 class="font-serif text-2xl font-black text-amber-900">Live Order Management</h2>
-                    <p class="text-xs text-gray-500">Track and manage online customer orders through fulfillment stages.</p>
+                    <p class="text-xs text-gray-500">Track and manage online customer orders through fulfillment stages.
+                    </p>
                 </div>
-                <button onclick="handleButtonAction(this, () => loadAdminOnlineOrders())" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow">🔄 Refresh Orders</button>
+                <button onclick="handleButtonAction(this, () => loadAdminOnlineOrders())"
+                    class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow">🔄
+                    Refresh Orders</button>
             </div>
             <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-3">
-                <button onclick="filterOrderTab('Pending')" id="tab-Pending" class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-amber-600 text-white shadow-sm">Pending</button>
-                <button onclick="filterOrderTab('Packing')" id="tab-Packing" class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-200">Packing</button>
-                <button onclick="filterOrderTab('Ready for Pickup')" id="tab-Ready-for-Pickup" class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-200">Ready</button>
-                <button onclick="filterOrderTab('Completed')" id="tab-Completed" class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-200">Completed</button>
+                <button onclick="filterOrderTab('Pending')" id="tab-Pending"
+                    class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-amber-600 text-white shadow-sm">Pending</button>
+                <button onclick="filterOrderTab('Packing')" id="tab-Packing"
+                    class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-200">Packing</button>
+                <button onclick="filterOrderTab('Ready for Pickup')" id="tab-Ready-for-Pickup"
+                    class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-200">Ready</button>
+                <button onclick="filterOrderTab('Completed')" id="tab-Completed"
+                    class="order-filter-tab px-4 py-2 rounded-xl text-xs font-black transition bg-white text-gray-600 hover:bg-gray-100 border border-gray-200">Completed</button>
             </div>
             <div id="online-orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
         <!-- CUSTOMER ONLINE STOREFRONT -->
-        <section id="customer-store-tab" class="tab-content hidden min-h-screen bg-amber-50/30 pb-16">
-            <header class="bg-gradient-to-r from-amber-800 to-amber-950 text-white py-8 px-6 shadow-xl mb-8">
-                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="text-center md:text-left">
-                        <h1 class="font-serif text-3xl md:text-4xl font-black italic tracking-wide">Bake & Bliss Bakery</h1>
-                        <p class="text-xs text-amber-200 font-bold uppercase tracking-widest mt-1">🍞 Freshly Baked Artisanal Goods • Delivered to Your Door</p>
+        <section id="customer-store-tab" class="tab-content hidden min-h-screen bg-[#faf9f6] relative pb-16 font-sans">
+            <!-- Background Decorative Blobs Container -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-40 -left-20 w-96 h-96 bg-amber-200/50 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse"
+                    style="animation-duration: 8s;"></div>
+                <div class="absolute top-96 right-10 w-[30rem] h-[30rem] bg-rose-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse"
+                    style="animation-duration: 10s;"></div>
+                <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-blue-100/50 rounded-full mix-blend-multiply filter blur-[90px] opacity-60 animate-pulse"
+                    style="animation-duration: 12s;"></div>
+            </div>
+
+            <!-- Hero Header -->
+            <header
+                class="relative overflow-hidden bg-slate-900 text-white py-16 px-6 shadow-2xl mb-10 rounded-b-[3rem]">
+                <!-- Background Image & Overlay -->
+                <div
+                    class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-40">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
+
+                <div class="relative max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="text-center md:text-left space-y-2">
+                        <span class="text-xs font-bold text-amber-400 tracking-[0.3em] uppercase">Est. 2026</span>
+                        <h1
+                            class="font-serif text-4xl md:text-6xl font-black italic tracking-wide text-white drop-shadow-lg">
+                            Bake & Bliss</h1>
+                        <p class="text-sm text-slate-200 font-medium tracking-wide max-w-md">Artisanal, freshly baked
+                            goods delivered straight to your door with a touch of elegance.</p>
                     </div>
-                    <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/20 shadow-inner">
-                        <span class="text-xl">🛒</span>
-                        <div><span class="text-[10px] block font-bold text-amber-300 uppercase tracking-wider">Cart Total</span><span id="cart-total-badge" class="font-serif font-black text-xl text-white">₹0.00</span></div>
+                    <div
+                        class="flex items-center gap-4 bg-white/10 backdrop-blur-xl px-6 py-4 rounded-3xl border border-white/20 shadow-2xl hover:scale-105 transition-transform duration-300">
+                        <span class="text-3xl drop-shadow-md">🛒</span>
+                        <div>
+                            <span
+                                class="text-[10px] block font-bold text-amber-200 uppercase tracking-widest opacity-80">Cart
+                                Total</span>
+                            <span id="cart-total-badge"
+                                class="font-serif font-black text-2xl text-white tracking-tight">₹0.00</span>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-amber-100 shadow-sm gap-4">
-                        <div><h2 class="font-serif text-xl font-black text-amber-900">Our Fresh Menu</h2><p class="text-xs text-gray-500">Browse all available items, including active weather flash markdowns.</p></div>
-                        <div class="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1.5 rounded-xl">Live Inventory Active</div>
+            <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Left Column: Menu -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div
+                        class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-white shadow-sm gap-4">
+                        <div class="flex-1 w-full space-y-4">
+                            <div>
+                                <h2 class="font-serif text-3xl font-black text-slate-800 tracking-tight">Our Fresh Menu
+                                </h2>
+                                <p class="text-sm text-slate-500 font-medium mt-1">Discover today's handcrafted
+                                    selections and flash specials.</p>
+                            </div>
+                            <!-- Search Bar -->
+                            <div class="relative w-full max-w-md">
+                                <span class="absolute inset-y-0 left-4 flex items-center text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </span>
+                                <input type="text" id="customer-search-input" onkeyup="filterCustomerMenu()"
+                                    placeholder="Search for treats..."
+                                    class="w-full bg-white/80 border border-white focus:border-amber-300 focus:ring-4 focus:ring-amber-500/20 rounded-full py-2.5 pl-11 pr-4 text-sm font-medium text-slate-800 shadow-sm placeholder:text-slate-400 transition-all outline-none">
+                            </div>
+                        </div>
+                        <div
+                            class="text-xs font-bold bg-amber-100 text-amber-900 px-4 py-2 rounded-full flex items-center gap-2 shadow-inner shrink-0 self-start sm:self-center">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            Live Inventory
+                        </div>
                     </div>
-                    <div id="customer-product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"><!-- Dynamically rendered real products go here --></div>
+
+                    <div class="max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar pb-6 rounded-3xl">
+                        <div id="customer-product-grid"
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <!-- Dynamically rendered real products go here -->
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Right Column: Checkout -->
                 <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-3xl border border-amber-200 shadow-lg lg:sticky lg:top-6 space-y-5">
-                        <div class="border-b border-gray-100 pb-4"><h3 class="font-serif text-lg font-black text-amber-900 flex items-center gap-2"><span>🛍️</span> Your Order Summary</h3><p class="text-xs text-gray-400 mt-0.5">Review items added to your basket.</p></div>
-                        <div id="cart-items-container" class="space-y-3 max-h-48 overflow-y-auto pr-1"><p class="text-xs text-gray-400 italic text-center py-4">Your cart is currently empty.</p></div>
-                        <div class="border-t border-gray-100 pt-4 space-y-3">
-                            <h4 class="text-xs font-black text-gray-700 uppercase tracking-wider">Delivery Details</h4>
-                            <input type="text" id="cust-name" required placeholder="Full Name *" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-600 bg-gray-50/50">
-                            <input type="tel" id="cust-phone" required maxlength="10" placeholder="10-Digit Mobile Number *" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-600 bg-gray-50/50">
-                            <textarea id="cust-address" required rows="3" placeholder="Complete Delivery Address (Street, Landmark, Pincode) *" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-600 bg-gray-50/50 resize-none"></textarea>
+                    <div
+                        class="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-2xl lg:sticky lg:top-8 space-y-6">
+                        <div class="border-b border-slate-100 pb-5">
+                            <h3 class="font-serif text-2xl font-black text-slate-800 flex items-center gap-3">
+                                <span>🛍️</span> Your Order
+                            </h3>
+                            <p class="text-xs text-slate-400 font-medium mt-1">Review your basket before checking out.
+                            </p>
                         </div>
-                        <button onclick="handleButtonAction(this, () => submitCustomerCheckout())" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2"><span>🔒</span> Place Secure Order</button>
+
+                        <div id="cart-items-container" class="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                            <p class="text-sm text-slate-400 italic text-center py-6">Your cart is gently resting empty.
+                            </p>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-6 space-y-4">
+                            <h4
+                                class="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                Delivery Details
+                            </h4>
+                            <div class="space-y-3 relative group">
+                                <input type="text" id="cust-name" required placeholder="Full Name"
+                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-slate-700 shadow-sm">
+                                <input type="tel" id="cust-phone" required maxlength="10" placeholder="Mobile Number"
+                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-slate-700 shadow-sm">
+                                <textarea id="cust-address" required rows="3" placeholder="Complete Delivery Address"
+                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-slate-700 shadow-sm resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <button onclick="handleButtonAction(this, () => submitCustomerCheckout())"
+                            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl text-sm tracking-wider transition-all duration-300 shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2 group transform active:scale-[0.98]">
+                            <span>Secure Checkout</span>
+                            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </main>
@@ -292,24 +443,32 @@
         <!-- TAB 2: PERMANENT CATALOG & MORNING RESTOCK -->
         <section id="catalog-tab" class="tab-content hidden space-y-6 max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 <!-- Add Permanent Product Form -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h2 class="text-xl font-semibold mb-4 text-gray-800">1. Manage Permanent Catalog</h2>
                     <form id="productForm" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Item Name</label>
-                            <input type="text" id="prod-name" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., Almond Croissant">
+                            <input type="text" id="prod-name" required
+                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                                placeholder="e.g., Almond Croissant">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Category</label>
-                            <input type="text" id="prod-category" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., Pastry">
+                            <input type="text" id="prod-category" required
+                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                                placeholder="e.g., Pastry">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Base Price ($)</label>
-                            <input type="number" step="0.01" id="prod-price" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="3.50">
+                            <input type="number" step="0.01" id="prod-price" required
+                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                                placeholder="3.50">
                         </div>
-                        <button type="submit" class="w-full bg-amber-600 text-white p-3 rounded-lg font-semibold hover:bg-amber-700 transition">Save to Catalog</button>
+                        <button type="submit"
+                            class="w-full bg-amber-600 text-white p-3 rounded-lg font-semibold hover:bg-amber-700 transition">Save
+                            to Catalog</button>
                     </form>
                 </div>
 
@@ -319,15 +478,20 @@
                     <form id="restockForm" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Select Product</label>
-                            <select id="restock-product-id" class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <select id="restock-product-id"
+                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
                                 <!-- Populated dynamically -->
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Today's Quantity Baked</label>
-                            <input type="number" id="restock-qty" required class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="20">
+                            <input type="number" id="restock-qty" required
+                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                                placeholder="20">
                         </div>
-                        <button type="submit" class="w-full bg-emerald-600 text-white p-3 rounded-lg font-semibold hover:bg-emerald-700 transition">Update Today's Stock</button>
+                        <button type="submit"
+                            class="w-full bg-emerald-600 text-white p-3 rounded-lg font-semibold hover:bg-emerald-700 transition">Update
+                            Today's Stock</button>
                     </form>
                 </div>
 
@@ -347,10 +511,13 @@
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-800">Complete Product Catalog & Dynamic Pricing Audit</h3>
-                        <p class="text-xs text-gray-500">Inspect base prices, shelf-life limits, live risk scores, and automated markdowns across all items.</p>
+                        <h3 class="text-lg font-bold text-gray-800">Complete Product Catalog & Dynamic Pricing Audit
+                        </h3>
+                        <p class="text-xs text-gray-500">Inspect base prices, shelf-life limits, live risk scores, and
+                            automated markdowns across all items.</p>
                     </div>
-                    <button onclick="loadPricingDetails()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+                    <button onclick="loadPricingDetails()"
+                        class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
                         🔄 Refresh Pricing Matrix
                     </button>
                 </div>
@@ -379,12 +546,15 @@
 
         <!-- Flash Posters Tab -->
         <section id="posters-tab" class="tab-content hidden space-y-6">
-            <div class="flex justify-between items-center bg-gradient-to-r from-amber-900 to-amber-800 text-white p-6 rounded-2xl shadow-md">
+            <div
+                class="flex justify-between items-center bg-gradient-to-r from-amber-900 to-amber-800 text-white p-6 rounded-2xl shadow-md">
                 <div>
                     <h2 class="text-xl font-bold">Active Digital Flash Posters</h2>
-                    <p class="text-xs text-amber-200 mt-1">Automatically generated promotional signage for items undergoing dynamic markdowns.</p>
+                    <p class="text-xs text-amber-200 mt-1">Automatically generated promotional signage for items
+                        undergoing dynamic markdowns.</p>
                 </div>
-                <button onclick="handleButtonAction(this, () => loadFlashPosters())" class="bg-white text-amber-900 hover:bg-amber-50 text-xs font-bold px-4 py-2 rounded-lg shadow transition">
+                <button onclick="handleButtonAction(this, () => loadFlashPosters())"
+                    class="bg-white text-amber-900 hover:bg-amber-50 text-xs font-bold px-4 py-2 rounded-lg shadow transition">
                     Refresh Posters
                 </button>
             </div>
@@ -418,7 +588,8 @@
                         <h3 class="text-base font-bold text-gray-800">Completed Checkout Transaction Log</h3>
                         <p class="text-xs text-gray-500">Audit trail of sales, discounts, and checkout timestamps.</p>
                     </div>
-                    <button onclick="loadRevenueData()" class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+                    <button onclick="loadRevenueData()"
+                        class="bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
                         Refresh Revenue Log
                     </button>
                 </div>
@@ -452,13 +623,15 @@
 
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Search Products</label>
-                        <input type="text" id="pos-search-input" onkeyup="filterPOSProducts()" placeholder="Type to filter products..."
-                               class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <input type="text" id="pos-search-input" onkeyup="filterPOSProducts()"
+                            placeholder="Type to filter products..."
+                            class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                     </div>
 
                     <div class="overflow-x-auto max-h-[400px] overflow-y-auto border rounded-lg">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-gray-50 sticky top-0 border-b text-xs font-semibold text-gray-600 uppercase">
+                            <thead
+                                class="bg-gray-50 sticky top-0 border-b text-xs font-semibold text-gray-600 uppercase">
                                 <tr>
                                     <th class="p-3">Product</th>
                                     <th class="p-3">Category</th>
@@ -473,25 +646,30 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4 flex flex-col justify-between">
+                <div
+                    class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4 flex flex-col justify-between">
                     <div>
                         <div class="border-b pb-4 mb-4 space-y-3">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Customer Details (Indian 10-Digit Format)</h3>
-                                <span id="customer-status-badge" class="text-xs font-semibold text-gray-400">Walk-in Mode</span>
+                                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Customer Details
+                                    (Indian 10-Digit Format)</h3>
+                                <span id="customer-status-badge" class="text-xs font-semibold text-gray-400">Walk-in
+                                    Mode</span>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number (10 Digits)</label>
-                                    <input type="text" id="pos-customer-phone" maxlength="10" placeholder="e.g., 9876543210"
-                                           oninput="handlePhoneInput(this)"
-                                           class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
-                                    <p id="customer-helper-text" class="text-[10px] text-gray-400 mt-1">Type 10 digits to search existing customer database.</p>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number (10
+                                        Digits)</label>
+                                    <input type="text" id="pos-customer-phone" maxlength="10"
+                                        placeholder="e.g., 9876543210" oninput="handlePhoneInput(this)"
+                                        class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                    <p id="customer-helper-text" class="text-[10px] text-gray-400 mt-1">Type 10 digits
+                                        to search existing customer database.</p>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Customer Name</label>
                                     <input type="text" id="pos-customer-name" placeholder="e.g., Raghul S"
-                                           class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-gray-50/50">
+                                        class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-gray-50/50">
                                 </div>
                             </div>
                         </div>
@@ -506,7 +684,8 @@
                             <span>Total Amount:</span>
                             <span id="cart-total-amount" class="text-emerald-700">$0.00</span>
                         </div>
-                        <button onclick="handleButtonAction(this, () => completeCheckout())" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow text-sm">
+                        <button onclick="handleButtonAction(this, () => completeCheckout())"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow text-sm">
                             Complete Checkout & Deduct Stock
                         </button>
                     </div>
@@ -556,7 +735,7 @@
         let closingHour = 21;
         let closingMinute = 0;
         let promptShown = false;
-        let manualClosed = false; 
+        let manualClosed = false;
         let rainDiscountApproved = false;
 
         // Global Cart Array & Inventory Cache for Multi-Item Checkout
@@ -670,7 +849,7 @@
             const now = new Date();
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
-            
+
             const statusBadge = document.getElementById('store-status');
             const promptBox = document.getElementById('closing-prompt');
             const displayTime = document.getElementById('display-closing-time');
@@ -689,7 +868,7 @@
             if (isOpen) {
                 statusBadge.textContent = "OPEN";
                 statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
-                
+
                 if (toggleBtn) {
                     toggleBtn.textContent = "🚨 Close Shop Now";
                     toggleBtn.className = "bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition";
@@ -700,7 +879,7 @@
             } else {
                 statusBadge.textContent = "CLOSED";
                 statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300";
-                
+
                 if (toggleBtn) {
                     toggleBtn.textContent = "🟢 Open Shop Now";
                     toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition";
@@ -757,7 +936,7 @@
             const now = new Date();
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
-            
+
             const closingTimeMinutes = closingHour * 60 + closingMinute;
             const currentTimeMinutes = currentHour * 60 + currentMinute;
             const isOpen = currentTimeMinutes < closingTimeMinutes && !manualClosed;
@@ -770,10 +949,10 @@
             } else {
                 manualClosed = false;
                 await toggleStoreOpenState(true);
-                closingHour = 21; 
+                closingHour = 21;
                 closingMinute = 0;
                 if (currentHour >= 21) {
-                    closingHour = currentHour + 2; 
+                    closingHour = currentHour + 2;
                 }
                 alert("Shop is now OPEN!");
             }
@@ -897,38 +1076,65 @@
             if (tabName === 'customer-store' && typeof loadCustomerStoreMenu === 'function') loadCustomerStoreMenu();
         }
 
+        let allCustomerProducts = [];
+
         async function loadCustomerStoreMenu() {
             try {
                 const res = await fetch(`${SHOP_URL}/menu`);
                 if (!res.ok) return;
 
-                const products = await res.json();
-                const grid = document.getElementById('customer-product-grid');
-                if (!grid) return;
-
-                if (products.length === 0) {
-                    grid.innerHTML = '<p class="col-span-full text-center text-xs text-gray-400 py-8">No items currently available.</p>';
-                    return;
-                }
-
-                grid.innerHTML = products.map(product => {
-                    const basePrice = Number(product.basePrice ?? product.originalPrice ?? product.price ?? 0);
-                    const adjustedPrice = Number(product.adjustedPrice ?? product.price ?? basePrice);
-                    const isDiscounted = adjustedPrice < basePrice;
-                    const itemName = String(product.itemName || 'Bakery Item');
-                    const safeName = itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                    return `
-                        <div class="bg-white rounded-2xl p-4 border border-amber-100/80 shadow-sm flex flex-col justify-between space-y-3 relative hover:shadow-md transition">
-                            ${isDiscounted ? '<span class="absolute top-3 right-3 bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">⚡ Flash Deal</span>' : ''}
-                            <div class="space-y-1 pr-6"><h4 class="font-serif font-bold text-gray-800 text-sm line-clamp-1">${itemName}</h4><p class="text-[10px] text-gray-400 font-medium">Freshly baked daily</p></div>
-                            <div class="flex items-baseline gap-2 pt-1"><span class="text-base font-black text-amber-700">₹${adjustedPrice.toFixed(2)}</span>${isDiscounted ? `<span class="text-[11px] line-through text-gray-400 font-bold">₹${basePrice.toFixed(2)}</span>` : ''}</div>
-                            <button onclick="addToCustomerCart('${safeName}', ${adjustedPrice})" class="w-full bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-900 font-bold py-2 rounded-xl text-xs transition border border-amber-200/60 shadow-sm">+ Add to Basket</button>
-                        </div>
-                    `;
-                }).join('');
+                allCustomerProducts = await res.json();
+                renderCustomerProducts(allCustomerProducts);
             } catch (err) {
                 console.error('Failed to load customer menu', err);
             }
+        }
+
+        function filterCustomerMenu() {
+            const query = document.getElementById('customer-search-input').value.toLowerCase();
+            if (!query) {
+                renderCustomerProducts(allCustomerProducts);
+                return;
+            }
+            const filtered = allCustomerProducts.filter(p => {
+                const name = String(p.itemName || '').toLowerCase();
+                return name.includes(query);
+            });
+            renderCustomerProducts(filtered);
+        }
+
+        function renderCustomerProducts(products) {
+            const grid = document.getElementById('customer-product-grid');
+            if (!grid) return;
+
+            if (products.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-sm font-medium text-slate-400 py-12">No treats found matching your search.</p>';
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const basePrice = Number(product.basePrice ?? product.originalPrice ?? product.price ?? 0);
+                const adjustedPrice = Number(product.adjustedPrice ?? product.price ?? basePrice);
+                const isDiscounted = adjustedPrice < basePrice;
+                const itemName = String(product.itemName || 'Bakery Item');
+                const safeName = itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                return `
+                    <div class="bg-white/60 backdrop-blur-md rounded-[1.5rem] p-5 border border-white shadow-sm flex flex-col justify-between space-y-4 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+                        ${isDiscounted ? '<span class="absolute top-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-rose-500/30">⚡ Flash Deal</span>' : ''}
+                        <div class="space-y-1.5 pr-8">
+                            <h4 class="font-serif font-black text-slate-800 text-lg leading-tight line-clamp-1 group-hover:text-amber-700 transition-colors">${itemName}</h4>
+                            <p class="text-[11px] text-slate-500 font-medium">Freshly baked daily</p>
+                        </div>
+                        <div class="flex items-baseline gap-2 pt-2">
+                            <span class="text-xl font-black text-slate-900">₹${adjustedPrice.toFixed(2)}</span>
+                            ${isDiscounted ? `<span class="text-[12px] line-through text-slate-400 font-bold">₹${basePrice.toFixed(2)}</span>` : ''}
+                        </div>
+                        <button onclick="addToCustomerCart('${safeName}', ${adjustedPrice})" class="w-full bg-white hover:bg-slate-900 text-slate-800 hover:text-white font-bold py-3 rounded-full text-xs tracking-wide transition-all border border-slate-200 hover:border-slate-900 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                            + Add to Basket
+                        </button>
+                    </div>
+                `;
+            }).join('');
         }
 
         function addToCustomerCart(name, price) {
@@ -1064,16 +1270,16 @@
                 }
                 const statusClass = order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800'
                     : order.status === 'Packing' ? 'bg-blue-100 text-blue-800'
-                    : order.status === 'Ready for Pickup' ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-gray-100 text-gray-700';
+                        : order.status === 'Ready for Pickup' ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-gray-100 text-gray-700';
                 const total = Number(order.totalAmount || 0).toFixed(2);
                 const action = order.status === 'Pending'
                     ? `<button onclick="handleButtonAction(this, () => updateOrderStatus('${order.orderId}', 'Packing'))" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-2 rounded-xl text-xs transition shadow-sm">Accept & Start Packing</button>`
                     : order.status === 'Packing'
-                    ? `<button onclick="handleButtonAction(this, () => updateOrderStatus('${order.orderId}', 'Ready for Pickup'))" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2 rounded-xl text-xs transition shadow-sm">Mark Ready for Delivery</button>`
-                    : order.status === 'Ready for Pickup'
-                    ? `<button onclick="handleButtonAction(this, () => updateOrderStatus('${order.orderId}', 'Completed'))" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl text-xs transition shadow-sm">Complete Order</button>`
-                    : '<div class="w-full text-center text-xs font-bold text-emerald-600 bg-emerald-50 py-2 rounded-xl">✓ Order Fulfilled</div>';
+                        ? `<button onclick="handleButtonAction(this, () => updateOrderStatus('${order.orderId}', 'Ready for Pickup'))" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2 rounded-xl text-xs transition shadow-sm">Mark Ready for Delivery</button>`
+                        : order.status === 'Ready for Pickup'
+                            ? `<button onclick="handleButtonAction(this, () => updateOrderStatus('${order.orderId}', 'Completed'))" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl text-xs transition shadow-sm">Complete Order</button>`
+                            : '<div class="w-full text-center text-xs font-bold text-emerald-600 bg-emerald-50 py-2 rounded-xl">✓ Order Fulfilled</div>';
 
                 return `
                     <div class="bg-white p-6 rounded-3xl border border-amber-100 shadow-sm space-y-4 relative flex flex-col justify-between">
@@ -1174,11 +1380,11 @@
 
                                 <div class="grid grid-cols-5 gap-3">
                                     ${poster.items.map((item, index) => {
-                                        const itemNum = String(index + 1).padStart(2, '0');
-                                        const basePrice = Number(item.basePrice) || 0;
-                                        const adjustedPrice = Number(item.adjustedPrice) || 0;
-                                        const savings = (basePrice - adjustedPrice).toFixed(2);
-                                        return `
+                    const itemNum = String(index + 1).padStart(2, '0');
+                    const basePrice = Number(item.basePrice) || 0;
+                    const adjustedPrice = Number(item.adjustedPrice) || 0;
+                    const savings = (basePrice - adjustedPrice).toFixed(2);
+                    return `
                                             <div class="bg-white rounded-xl p-2.5 border border-amber-100 shadow-sm flex flex-col justify-between relative">
                                                 <span class="absolute top-1.5 left-1.5 bg-amber-700 text-white text-[9px] font-black px-1.5 py-0.5 rounded">${itemNum}</span>
                                                 <div class="text-center pt-3 pb-1">
@@ -1192,7 +1398,7 @@
                                                 </div>
                                             </div>
                                         `;
-                                    }).join('')}
+                }).join('')}
                                 </div>
 
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-2xl border border-amber-100 text-center text-xs font-bold text-gray-700">
@@ -1314,7 +1520,7 @@
         }
 
         async function loadDashboardData() {
-            checkStoreStatus(); 
+            checkStoreStatus();
             loadWeatherDisplay();
 
             try {
@@ -1352,9 +1558,9 @@
                         liveStockTbody.innerHTML = stockRows;
                     }
                 }
-                
+
                 let tbody = document.getElementById('dashboard-table-body');
-                
+
                 tbody.innerHTML = '';
 
                 let highRiskCount = 0;
@@ -1570,7 +1776,7 @@
 
         async function loadPOSProducts() {
             try {
-                    const res = await fetch(`${SHELF_API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
+                const res = await fetch(`${SHELF_API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
                 if (!res.ok) return;
                 posProductsData = await res.json();
                 renderPOSProductTable(posProductsData);
@@ -1623,7 +1829,7 @@
             const qtyInput = document.getElementById(`qty-${itemId}`);
             const qty = parseInt(qtyInput.value) || 1;
             try {
-                    const res = await fetch(`${SHELF_API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
+                const res = await fetch(`${SHELF_API_URL}/inventory/evaluated?rainDiscountApproved=${rainDiscountApproved}`);
                 if (!res.ok) throw new Error(`Failed to load evaluated inventory (${res.status})`);
                 const evaluatedItem = (await res.json()).find(item => item.itemId === itemId);
                 if (!evaluatedItem) {
@@ -1795,4 +2001,5 @@
         startLiveShelfPolling();
     </script>
 </body>
+
 </html>
