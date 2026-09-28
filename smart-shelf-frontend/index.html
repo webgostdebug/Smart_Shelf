@@ -8,8 +8,36 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
+<style>
+    @keyframes shimmer {
+        100% { transform: translateX(100%); }
+    }
+    .hover-shine::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+        transform: translateX(-100%);
+        z-index: 20;
+        pointer-events: none;
+    }
+    .hover-shine:hover::after {
+        animation: shimmer 1s ease-in-out;
+    }
+    /* Hide scrollbar for horizontal cart */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #fcd34d;
+        border-radius: 10px;
+    }
+</style>
 
-<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+<body class="bg-[#f4efe6] text-amber-950 font-sans min-h-screen">
 
     <!-- Cinematic Storm & Lightning Overlay -->
     <div id="storm-container"
@@ -346,24 +374,66 @@
                             <span
                                 class="text-[10px] block font-bold text-amber-200 uppercase tracking-widest opacity-80">Cart
                                 Total</span>
-                            <span id="cart-total-badge"
+                            <span id="cart-total-badge-header"
                                 class="font-serif font-black text-2xl text-white tracking-tight">₹0.00</span>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <!-- Left Column: Menu -->
-                <div class="lg:col-span-2 space-y-8">
-                    <div
-                        class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-white shadow-sm gap-4">
+            <main class="max-w-7xl mx-auto px-4 pb-24 relative">
+                
+                <!-- Top Horizontal Sticky Cart & Checkout -->
+                <div class="sticky top-4 z-40 bg-white/95 backdrop-blur-xl border border-amber-200 shadow-xl shadow-amber-900/5 rounded-[2rem] p-4 mb-8 flex flex-col gap-4 transition-all">
+                    <!-- Cart Items Row -->
+                    <div class="flex items-center justify-between border-b border-amber-100 pb-3 gap-4">
+                        <h3 class="font-serif text-xl font-black text-amber-950 flex items-center gap-2 shrink-0">
+                            <span>🛍️</span> Basket
+                        </h3>
+                        
+                        <!-- Horizontal Scrollable Cart Items -->
+                        <div id="cart-items-container" class="flex-1 flex overflow-x-auto gap-3 items-center custom-scrollbar pb-1">
+                            <p class="text-sm text-slate-400 italic">Your cart is gently resting empty.</p>
+                        </div>
+                        
+                        <!-- Total Badge -->
+                        <div class="shrink-0 bg-amber-100 text-amber-900 font-black px-4 py-2 rounded-full shadow-inner border border-amber-200 text-sm">
+                            Total: <span id="cart-total-badge-sticky">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Details & Checkout Row -->
+                    <div class="flex flex-col md:flex-row gap-3 items-center">
+                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <input type="text" id="cust-name" required placeholder="Full Name"
+                                class="bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
+                            <input type="tel" id="cust-phone" required maxlength="10" placeholder="Mobile Number"
+                                class="bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
+                            <input type="text" id="cust-address" required placeholder="Complete Delivery Address"
+                                class="bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
+                        </div>
+                        
+                        <button onclick="handleButtonAction(this, () => submitCustomerCheckout())"
+                            class="w-full md:w-auto shrink-0 bg-[#4a362f] hover:bg-amber-950 text-white font-bold py-3 px-8 rounded-xl text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 group active:scale-[0.98]">
+                            <span>Secure Checkout</span>
+                            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Full Width Menu -->
+                <div class="space-y-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-white shadow-sm gap-4">
                         <div class="flex-1 w-full space-y-4">
                             <div>
                                 <h2 class="font-serif text-3xl font-black text-slate-800 tracking-tight">Our Fresh Menu
                                 </h2>
                                 <p class="text-sm text-slate-500 font-medium mt-1">Discover today's handcrafted
-                                    selections and flash specials.</p>
+                                    selections and specials.</p>
                             </div>
                             <!-- Search Bar -->
                             <div class="relative w-full max-w-md">
@@ -379,62 +449,10 @@
                                     class="w-full bg-white/80 border border-white focus:border-amber-300 focus:ring-4 focus:ring-amber-500/20 rounded-full py-2.5 pl-11 pr-4 text-sm font-medium text-slate-800 shadow-sm placeholder:text-slate-400 transition-all outline-none">
                             </div>
                         </div>
-                        <div
-                            class="text-xs font-bold bg-amber-100 text-amber-900 px-4 py-2 rounded-full flex items-center gap-2 shadow-inner shrink-0 self-start sm:self-center">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                            Live Inventory
-                        </div>
                     </div>
 
-                    <div class="max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar pb-6 rounded-3xl">
-                        <div id="customer-product-grid"
-                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                            <!-- Dynamically rendered real products go here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Checkout -->
-                <div class="space-y-6">
-                    <div
-                        class="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-2xl lg:sticky lg:top-8 space-y-6">
-                        <div class="border-b border-slate-100 pb-5">
-                            <h3 class="font-serif text-2xl font-black text-slate-800 flex items-center gap-3">
-                                <span>🛍️</span> Your Order
-                            </h3>
-                            <p class="text-xs text-slate-400 font-medium mt-1">Review your basket before checking out.
-                            </p>
-                        </div>
-
-                        <div id="cart-items-container" class="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                            <p class="text-sm text-slate-400 italic text-center py-6">Your cart is gently resting empty.
-                            </p>
-                        </div>
-
-                        <div class="border-t border-slate-100 pt-6 space-y-4">
-                            <h4
-                                class="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                                Delivery Details
-                            </h4>
-                            <div class="space-y-3 relative group">
-                                <input type="text" id="cust-name" required placeholder="Full Name"
-                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-slate-700 shadow-sm">
-                                <input type="tel" id="cust-phone" required maxlength="10" placeholder="Mobile Number"
-                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-slate-700 shadow-sm">
-                                <textarea id="cust-address" required rows="3" placeholder="Complete Delivery Address"
-                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-slate-700 shadow-sm resize-none"></textarea>
-                            </div>
-                        </div>
-
-                        <button onclick="handleButtonAction(this, () => submitCustomerCheckout())"
-                            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl text-sm tracking-wider transition-all duration-300 shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2 group transform active:scale-[0.98]">
-                            <span>Secure Checkout</span>
-                            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </button>
+                    <div id="customer-product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                        <!-- Dynamically rendered real products go here -->
                     </div>
                 </div>
             </main>
@@ -1103,6 +1121,17 @@
             renderCustomerProducts(filtered);
         }
 
+        function getImageForItem(name) {
+            const lower = name.toLowerCase();
+            if (lower.includes('vanilla')) return 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=600&auto=format&fit=crop';
+            if (lower.includes('black forest')) return 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?q=80&w=600&auto=format&fit=crop';
+            if (lower.includes('strawberry')) return 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=600&auto=format&fit=crop';
+            if (lower.includes('pineapple')) return 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?q=80&w=600&auto=format&fit=crop';
+            if (lower.includes('white forest')) return 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?q=80&w=600&auto=format&fit=crop';
+            if (lower.includes('litchi')) return 'https://images.unsplash.com/photo-1587668178277-295251f900ce?q=80&w=600&auto=format&fit=crop';
+            return 'https://images.unsplash.com/photo-1551024506-0bccd828d307?q=80&w=600&auto=format&fit=crop'; // fallback
+        }
+
         function renderCustomerProducts(products) {
             const grid = document.getElementById('customer-product-grid');
             if (!grid) return;
@@ -1112,29 +1141,60 @@
                 return;
             }
 
-            grid.innerHTML = products.map(product => {
+            grid.innerHTML = products.map((product, index) => {
                 const basePrice = Number(product.basePrice ?? product.originalPrice ?? product.price ?? 0);
                 const adjustedPrice = Number(product.adjustedPrice ?? product.price ?? basePrice);
                 const isDiscounted = adjustedPrice < basePrice;
                 const itemName = String(product.itemName || 'Bakery Item');
                 const safeName = itemName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                const imageUrl = product.imageUrl || getImageForItem(itemName);
+                // Delay for staggered animation
+                const delay = (index % 3) * 150;
+                
                 return `
-                    <div class="bg-white/60 backdrop-blur-md rounded-[1.5rem] p-5 border border-white shadow-sm flex flex-col justify-between space-y-4 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
-                        ${isDiscounted ? '<span class="absolute top-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-rose-500/30">⚡ Flash Deal</span>' : ''}
-                        <div class="space-y-1.5 pr-8">
-                            <h4 class="font-serif font-black text-slate-800 text-lg leading-tight line-clamp-1 group-hover:text-amber-700 transition-colors">${itemName}</h4>
-                            <p class="text-[11px] text-slate-500 font-medium">Freshly baked daily</p>
+                    <div class="menu-card relative hover-shine opacity-0 translate-y-12 transition-all duration-1000 ease-out bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-lg flex flex-col" style="transition-delay: ${delay}ms;">
+                        <!-- Image Section -->
+                        <div class="relative h-56 bg-slate-100">
+                            ${isDiscounted ? '<span class="absolute top-4 right-4 z-10 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-rose-500/30">⚡ Flash Deal</span>' : ''}
+                            <img src="${imageUrl}" alt="${itemName}" class="w-full h-full object-cover" loading="lazy" />
+                            <!-- Category Badge -->
+                            <span class="absolute bottom-4 left-4 bg-[#f4efe6] text-amber-950 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">
+                                ${itemName}
+                            </span>
                         </div>
-                        <div class="flex items-baseline gap-2 pt-2">
-                            <span class="text-xl font-black text-slate-900">₹${adjustedPrice.toFixed(2)}</span>
-                            ${isDiscounted ? `<span class="text-[12px] line-through text-slate-400 font-bold">₹${basePrice.toFixed(2)}</span>` : ''}
+                        <!-- Content Section -->
+                        <div class="p-6 flex flex-col flex-grow justify-between">
+                            <div class="mb-4">
+                                <h4 class="font-serif font-black text-amber-950 text-2xl">${itemName}</h4>
+                                <div class="flex items-baseline gap-2 pt-2">
+                                    <span class="text-xl font-black text-slate-900">₹${adjustedPrice.toFixed(2)}</span>
+                                    ${isDiscounted ? `<span class="text-[12px] line-through text-slate-400 font-bold">₹${basePrice.toFixed(2)}</span>` : ''}
+                                </div>
+                            </div>
+                            <button onclick="addToCustomerCart('${safeName}', ${adjustedPrice})" class="w-full bg-[#4a362f] hover:bg-amber-950 text-white font-bold py-3.5 rounded-full text-sm flex items-center justify-center gap-2 transition-colors">
+                                + Add to Basket
+                            </button>
                         </div>
-                        <button onclick="addToCustomerCart('${safeName}', ${adjustedPrice})" class="w-full bg-white hover:bg-slate-900 text-slate-800 hover:text-white font-bold py-3 rounded-full text-xs tracking-wide transition-all border border-slate-200 hover:border-slate-900 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
-                            + Add to Basket
-                        </button>
                     </div>
                 `;
             }).join('');
+
+            // Initialize scroll reveal
+            setTimeout(() => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.remove('opacity-0', 'translate-y-12');
+                            entry.target.classList.add('opacity-100', 'translate-y-0');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.menu-card').forEach(card => {
+                    observer.observe(card);
+                });
+            }, 50);
         }
 
         function addToCustomerCart(name, price) {
@@ -1149,21 +1209,25 @@
 
         function renderCustomerCartUI() {
             const container = document.getElementById('cart-items-container');
-            const totalBadge = document.getElementById('cart-total-badge');
-            if (!container || !totalBadge) return;
+            const totalBadge1 = document.getElementById('cart-total-badge-header');
+            const totalBadge2 = document.getElementById('cart-total-badge-sticky');
+            if (!container) return;
             if (customerCart.length === 0) {
-                container.innerHTML = '<p class="text-xs text-gray-400 italic text-center py-4">Your cart is currently empty.</p>';
-                totalBadge.innerText = '₹0.00';
+                container.innerHTML = '<p class="text-sm text-slate-400 italic">Your cart is gently resting empty.</p>';
+                if (totalBadge1) totalBadge1.innerText = '₹0.00';
+                if (totalBadge2) totalBadge2.innerText = '₹0.00';
                 return;
             }
             const total = customerCart.reduce((sum, item) => sum + item.price, 0);
             container.innerHTML = customerCart.map((item, index) => `
-                <div class="flex justify-between items-center bg-amber-50/50 p-2.5 rounded-xl border border-amber-100 text-xs">
-                    <div><span class="font-bold text-gray-800 block">${item.name}</span><span class="text-amber-700 font-bold">₹${item.price.toFixed(2)}</span></div>
-                    <button onclick="removeFromCustomerCart(${index})" class="text-rose-500 hover:text-rose-700 font-bold px-2 py-1 text-sm" aria-label="Remove ${item.name}">×</button>
+                <div class="shrink-0 flex items-center gap-2 bg-amber-50/80 px-4 py-2 rounded-full border border-amber-200 text-sm shadow-sm">
+                    <span class="font-bold text-amber-950">${item.name}</span>
+                    <span class="text-amber-700 font-bold ml-1">₹${item.price.toFixed(2)}</span>
+                    <button onclick="removeFromCustomerCart(${index})" class="text-rose-500 hover:text-rose-700 font-black ml-2 text-lg leading-none transition-colors" aria-label="Remove ${item.name}">&times;</button>
                 </div>
             `).join('');
-            totalBadge.innerText = `₹${total.toFixed(2)}`;
+            if (totalBadge1) totalBadge1.innerText = `₹${total.toFixed(2)}`;
+            if (totalBadge2) totalBadge2.innerText = `₹${total.toFixed(2)}`;
         }
 
         async function submitCustomerCheckout() {

@@ -62,6 +62,7 @@ public class ShopController {
             menuItem.put("basePrice", item.getProduct().getBasePrice());
             menuItem.put("isFlashDeal", ((Number) evaluation.get("discountPercentage")).doubleValue() > 0);
             menuItem.put("currentQuantity", item.getCurrentQuantity());
+            menuItem.put("imageUrl", item.getProduct().getImageUrl());
             menuItems.add(menuItem);
         }
 

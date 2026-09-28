@@ -21,6 +21,9 @@ public class Product {
 
     private int shelfLifeDays = 1;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -32,4 +35,6 @@ public class Product {
     public void setBasePrice(Double basePrice) { this.basePrice = basePrice; }
     public int getShelfLifeDays() { return shelfLifeDays; }
     public void setShelfLifeDays(int shelfLifeDays) { this.shelfLifeDays = shelfLifeDays; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
