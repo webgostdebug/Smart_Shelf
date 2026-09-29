@@ -55,6 +55,10 @@ public class ShelfController {
 
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        List<InventoryItem> items = inventoryRepository.findAll().stream()
+                .filter(i -> i.getProduct() != null && i.getProduct().getId().equals(id))
+                .toList();
+        inventoryRepository.deleteAll(items);
         productRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
@@ -91,16 +95,12 @@ public class ShelfController {
         item.setBakedDate(LocalDate.now());
         int shelfLife = product.getShelfLifeDays() > 0 ? product.getShelfLifeDays() : 1;
 
-        LocalDateTime expiryDateTime = LocalDateTime.now()
-                .plusDays(shelfLife)
-                .withHour(21)
-                .withMinute(0)
-                .withSecond(0);
+        // Set expiry exactly `shelfLife` days from the restock time
+        LocalDateTime expiryDateTime = LocalDateTime.now().plusDays(shelfLife);
         item.setExpiresAt(expiryDateTime);
 
         inventoryRepository.save(item);
-    return ResponseEntity.ok("Stock updated with product-specific shelf life ("
-        + shelfLife + " days)!");
+        return ResponseEntity.ok("Stock updated! Expiry set exactly " + shelfLife + " day(s) from now at " + expiryDateTime);
     }
 
     @PostMapping("/inventory/rollover")
@@ -172,6 +172,14 @@ public class ShelfController {
         
         List<Map<String, Object>> evaluatedList = new java.util.ArrayList<>();
         for (InventoryItem item : items) {
+            if (item.getExpiresAt() != null && LocalDateTime.now().isAfter(item.getExpiresAt())) {
+                if (item.getCurrentQuantity() > 0 || !"EXPIRED".equals(item.getStatus())) {
+                    item.setCurrentQuantity(0);
+                    item.setStatus("EXPIRED");
+                    inventoryRepository.save(item);
+                }
+            }
+
             Map<String, Object> evaluation = shelfEngine.evaluateItem(
                     item, liveWeatherPenalty, liveWeatherCondition,
                     rainDiscountApproved, 1.0);
@@ -194,6 +202,18 @@ public class ShelfController {
 
         List<Map<String, Object>> discountedItems = new java.util.ArrayList<>();
         for (InventoryItem item : items) {
+            if (item.getExpiresAt() != null && LocalDateTime.now().isAfter(item.getExpiresAt())) {
+                if (item.getCurrentQuantity() > 0 || !"EXPIRED".equals(item.getStatus())) {
+                    item.setCurrentQuantity(0);
+                    item.setStatus("EXPIRED");
+                    inventoryRepository.save(item);
+                }
+            }
+
+            if (item.getCurrentQuantity() == null || item.getCurrentQuantity() <= 0 || !"ACTIVE".equalsIgnoreCase(item.getStatus())) {
+                continue;
+            }
+
             Map<String, Object> evaluation = shelfEngine.evaluateItem(
                     item, liveWeatherPenalty, liveWeatherCondition, rainDiscountApproved, 1.0);
             double discount = 0.0;

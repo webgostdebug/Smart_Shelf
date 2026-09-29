@@ -492,24 +492,15 @@
 
                 <!-- Daily Morning Restock Form -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-800">2. Daily Morning Restock</h2>
-                    <form id="restockForm" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Select Product</label>
-                            <select id="restock-product-id"
-                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                                <!-- Populated dynamically -->
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Today's Quantity Baked</label>
-                            <input type="number" id="restock-qty" required
-                                class="w-full mt-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                                placeholder="20">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">2. Daily Morning Bulk Restock</h2>
+                    <form id="bulkRestockForm" class="space-y-4">
+                        <div id="bulk-restock-container" class="max-h-64 overflow-y-auto space-y-2 pr-2">
+                            <!-- Populated dynamically: rows of Product Name and Number Input -->
                         </div>
                         <button type="submit"
-                            class="w-full bg-emerald-600 text-white p-3 rounded-lg font-semibold hover:bg-emerald-700 transition">Update
-                            Today's Stock</button>
+                            class="w-full bg-emerald-600 text-white p-3 rounded-lg font-semibold hover:bg-emerald-700 transition">
+                            Update All Stock
+                        </button>
                     </form>
                 </div>
 
@@ -1498,12 +1489,13 @@
                 const products = await res.json();
 
                 let catalogDiv = document.getElementById('catalog-list');
-                let restockSelect = document.getElementById('restock-product-id');
+                let bulkRestockContainer = document.getElementById('bulk-restock-container');
                 catalogDiv.innerHTML = '';
-                restockSelect.innerHTML = '';
+                bulkRestockContainer.innerHTML = '';
 
                 if (products.length === 0) {
                     catalogDiv.innerHTML = '<p class="text-gray-500 text-sm">No items in catalog yet. Add one above!</p>';
+                    bulkRestockContainer.innerHTML = '<p class="text-gray-500 text-sm">No items available to restock.</p>';
                     return;
                 }
 
@@ -1515,7 +1507,12 @@
                         </div>
                     `;
 
-                    restockSelect.innerHTML += `<option value="${p.id}">${p.name} ($${p.basePrice.toFixed(2)})</option>`;
+                    bulkRestockContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-200">
+                            <span class="text-sm font-medium text-gray-700 truncate w-2/3">${p.name}</span>
+                            <input type="number" min="0" data-product-id="${p.id}" class="bulk-restock-input w-24 p-1.5 border rounded focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Qty">
+                        </div>
+                    `;
                 }
             } catch (err) {
                 console.error("Failed to load products", err);
@@ -1549,26 +1546,45 @@
             }
         });
 
-        document.getElementById('restockForm').addEventListener('submit', async (e) => {
+        document.getElementById('bulkRestockForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const productId = document.getElementById('restock-product-id').value;
-            const qty = document.getElementById('restock-qty').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            const inputs = document.querySelectorAll('.bulk-restock-input');
+            let promises = [];
+            let updatedCount = 0;
 
-            if (!productId) {
-                alert('Please select a product from the catalog first.');
+            for (let input of inputs) {
+                const qty = parseInt(input.value);
+                if (qty && qty > 0) {
+                    const productId = input.getAttribute('data-product-id');
+                    promises.push(
+                        fetch(`${SHELF_API_URL}/inventory/restock?productId=${productId}&quantity=${qty}`, { method: 'POST' })
+                    );
+                    updatedCount++;
+                }
+            }
+
+            if (updatedCount === 0) {
+                alert('Please enter a quantity for at least one item.');
                 return;
             }
 
-            const res = await fetch(`${SHELF_API_URL}/inventory/restock?productId=${productId}&quantity=${qty}`, {
-                method: 'POST'
-            });
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Processing...";
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-            if (res.ok) {
-                alert("Today's stock updated successfully!");
-                document.getElementById('restockForm').reset();
+            try {
+                await Promise.all(promises);
+                alert(`Successfully updated stock for ${updatedCount} items!`);
+                document.getElementById('bulkRestockForm').reset();
                 switchTab('dashboard');
-            } else {
-                alert('Failed to update stock.');
+            } catch (err) {
+                alert('An error occurred while updating some items.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
             }
         });
 

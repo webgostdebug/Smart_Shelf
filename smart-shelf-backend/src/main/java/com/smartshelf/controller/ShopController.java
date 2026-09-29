@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/shop")
@@ -46,6 +47,14 @@ public class ShopController {
         List<Map<String, Object>> menuItems = new ArrayList<>();
 
         for (InventoryItem item : inventoryRepository.findAllWithProducts()) {
+            if (item.getExpiresAt() != null && LocalDateTime.now().isAfter(item.getExpiresAt())) {
+                if (item.getCurrentQuantity() > 0 || !"EXPIRED".equals(item.getStatus())) {
+                    item.setCurrentQuantity(0);
+                    item.setStatus("EXPIRED");
+                    inventoryRepository.save(item);
+                }
+            }
+
             if (item.getProduct() == null || item.getCurrentQuantity() == null
                     || item.getCurrentQuantity() <= 0 || !"ACTIVE".equalsIgnoreCase(item.getStatus())) {
                 continue;
