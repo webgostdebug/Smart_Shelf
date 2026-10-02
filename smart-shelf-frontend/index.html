@@ -337,126 +337,6 @@
             <div id="online-orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- CUSTOMER ONLINE STOREFRONT -->
-        <section id="customer-store-tab" class="tab-content hidden min-h-screen bg-[#faf9f6] relative pb-16 font-sans">
-            <!-- Background Decorative Blobs Container -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div class="absolute top-40 -left-20 w-96 h-96 bg-amber-200/50 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse"
-                    style="animation-duration: 8s;"></div>
-                <div class="absolute top-96 right-10 w-[30rem] h-[30rem] bg-rose-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse"
-                    style="animation-duration: 10s;"></div>
-                <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-blue-100/50 rounded-full mix-blend-multiply filter blur-[90px] opacity-60 animate-pulse"
-                    style="animation-duration: 12s;"></div>
-            </div>
-
-            <!-- Hero Header -->
-            <header
-                class="relative overflow-hidden bg-slate-900 text-white py-16 px-6 shadow-2xl mb-10 rounded-b-[3rem]">
-                <!-- Background Image & Overlay -->
-                <div
-                    class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-40">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
-
-                <div class="relative max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div class="text-center md:text-left space-y-2">
-                        <span class="text-xs font-bold text-amber-400 tracking-[0.3em] uppercase">Est. 2026</span>
-                        <h1
-                            class="font-serif text-4xl md:text-6xl font-black italic tracking-wide text-white drop-shadow-lg">
-                            Bake & Bliss</h1>
-                        <p class="text-sm text-slate-200 font-medium tracking-wide max-w-md">Artisanal, freshly baked
-                            goods delivered straight to your door with a touch of elegance.</p>
-                    </div>
-                    <div
-                        class="flex items-center gap-4 bg-white/10 backdrop-blur-xl px-6 py-4 rounded-3xl border border-white/20 shadow-2xl hover:scale-105 transition-transform duration-300">
-                        <span class="text-3xl drop-shadow-md">🛒</span>
-                        <div>
-                            <span
-                                class="text-[10px] block font-bold text-amber-200 uppercase tracking-widest opacity-80">Cart
-                                Total</span>
-                            <span id="cart-total-badge-header"
-                                class="font-serif font-black text-2xl text-white tracking-tight">₹0.00</span>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main class="max-w-7xl mx-auto px-4 pb-24 relative">
-                
-                <!-- Top Horizontal Sticky Cart & Checkout -->
-                <div class="sticky top-4 z-40 bg-white/95 backdrop-blur-xl border border-amber-200 shadow-xl shadow-amber-900/5 rounded-[2rem] p-4 mb-8 flex flex-col gap-4 transition-all">
-                    <!-- Cart Items Row -->
-                    <div class="flex items-center justify-between border-b border-amber-100 pb-3 gap-4">
-                        <h3 class="font-serif text-xl font-black text-amber-950 flex items-center gap-2 shrink-0">
-                            <span>🛍️</span> Basket
-                        </h3>
-                        
-                        <!-- Horizontal Scrollable Cart Items -->
-                        <div id="cart-items-container" class="flex-1 flex overflow-x-auto gap-3 items-center custom-scrollbar pb-1">
-                            <p class="text-sm text-slate-400 italic">Your cart is gently resting empty.</p>
-                        </div>
-                        
-                        <!-- Total Badge -->
-                        <div class="shrink-0 bg-amber-100 text-amber-900 font-black px-4 py-2 rounded-full shadow-inner border border-amber-200 text-sm">
-                            Total: <span id="cart-total-badge-sticky">₹0.00</span>
-                        </div>
-                    </div>
-
-                    <!-- Delivery Details & Checkout Row -->
-                    <div class="flex flex-col md:flex-row gap-3 items-center">
-                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="text" id="cust-name" required placeholder="Full Name"
-                                class="bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
-                            <input type="tel" id="cust-phone" required maxlength="10" placeholder="Mobile Number"
-                                class="bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
-                            <input type="text" id="cust-address" required placeholder="Complete Delivery Address"
-                                class="bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
-                        </div>
-                        
-                        <button onclick="handleButtonAction(this, () => submitCustomerCheckout())"
-                            class="w-full md:w-auto shrink-0 bg-[#4a362f] hover:bg-amber-950 text-white font-bold py-3 px-8 rounded-xl text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 group active:scale-[0.98]">
-                            <span>Secure Checkout</span>
-                            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Full Width Menu -->
-                <div class="space-y-8">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-white shadow-sm gap-4">
-                        <div class="flex-1 w-full space-y-4">
-                            <div>
-                                <h2 class="font-serif text-3xl font-black text-slate-800 tracking-tight">Our Fresh Menu
-                                </h2>
-                                <p class="text-sm text-slate-500 font-medium mt-1">Discover today's handcrafted
-                                    selections and specials.</p>
-                            </div>
-                            <!-- Search Bar -->
-                            <div class="relative w-full max-w-md">
-                                <span class="absolute inset-y-0 left-4 flex items-center text-slate-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </span>
-                                <input type="text" id="customer-search-input" onkeyup="filterCustomerMenu()"
-                                    placeholder="Search for treats..."
-                                    class="w-full bg-white/80 border border-white focus:border-amber-300 focus:ring-4 focus:ring-amber-500/20 rounded-full py-2.5 pl-11 pr-4 text-sm font-medium text-slate-800 shadow-sm placeholder:text-slate-400 transition-all outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="customer-product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-                        <!-- Dynamically rendered real products go here -->
-                    </div>
-                </div>
-            </main>
-        </section>
 
         <!-- TAB 2: PERMANENT CATALOG & MORNING RESTOCK -->
         <section id="catalog-tab" class="tab-content hidden space-y-6 max-w-4xl mx-auto">
@@ -703,6 +583,134 @@
         </section>
 
     </main>
+        <!-- CUSTOMER ONLINE STOREFRONT -->
+        <section id="customer-store-tab" class="tab-content hidden min-h-screen bg-[#faf9f6] relative pb-16 font-sans">
+            <!-- Background Decorative Blobs Container -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-40 -left-20 w-96 h-96 bg-amber-200/50 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-pulse"
+                    style="animation-duration: 8s;"></div>
+                <div class="absolute top-96 right-10 w-[30rem] h-[30rem] bg-rose-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse"
+                    style="animation-duration: 10s;"></div>
+                <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-blue-100/50 rounded-full mix-blend-multiply filter blur-[90px] opacity-60 animate-pulse"
+                    style="animation-duration: 12s;"></div>
+            </div>
+
+            <!-- Hero Header -->
+            <header
+                class="relative overflow-hidden bg-slate-900 text-white py-10 md:py-16 px-4 md:px-6 shadow-2xl mb-10 rounded-b-[3rem]">
+                <!-- Background Image & Overlay -->
+                <div
+                    class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-40">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
+
+                <div class="relative max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="text-center md:text-left space-y-2">
+                        <span class="text-xs font-bold text-amber-400 tracking-[0.3em] uppercase">Est. 2026</span>
+                        <h1
+                            class="font-serif text-3xl sm:text-4xl md:text-6xl font-black italic tracking-wide text-white drop-shadow-lg">
+                            Bake & Bliss</h1>
+                        <p class="text-sm text-slate-200 font-medium tracking-wide max-w-md">Artisanal, freshly baked
+                            goods delivered straight to your door with a touch of elegance.</p>
+                    </div>
+                    <div
+                        class="flex items-center gap-4 bg-white/10 backdrop-blur-xl px-6 py-4 rounded-3xl border border-white/20 shadow-2xl hover:scale-105 transition-transform duration-300">
+                        <span class="text-3xl drop-shadow-md">🛒</span>
+                        <div>
+                            <span
+                                class="text-[10px] block font-bold text-amber-200 uppercase tracking-widest opacity-80">Cart
+                                Total</span>
+                            <span id="cart-total-badge-header"
+                                class="font-serif font-black text-2xl text-white tracking-tight">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto px-4 pb-24 relative">
+                
+                <!-- Floating Cart Button -->
+                <button onclick="toggleCartModal()" class="fixed bottom-6 right-6 z-50 bg-[#4a362f] hover:bg-amber-950 text-white rounded-full p-4 shadow-2xl transition-transform hover:scale-110 flex items-center justify-center">
+                    <span class="text-2xl">🛒</span>
+                    <span id="floating-cart-badge" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full shadow-lg border-2 border-white hidden">0</span>
+                </button>
+
+                <!-- Cart Modal Sidebar -->
+                <div id="cart-modal" class="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm hidden flex justify-end">
+                    <div class="bg-[#faf9f6] w-full max-w-md h-full shadow-2xl flex flex-col relative translate-x-full transition-transform duration-300" id="cart-modal-content">
+                        <!-- Header -->
+                        <div class="p-6 bg-white border-b border-amber-100 flex items-center justify-between">
+                            <h3 class="font-serif text-2xl font-black text-amber-950 flex items-center gap-2">
+                                <span>🛍️</span> Your Basket
+                            </h3>
+                            <button onclick="toggleCartModal()" class="text-slate-400 hover:text-amber-950 transition-colors text-3xl leading-none">&times;</button>
+                        </div>
+
+                        <!-- Items List -->
+                        <div class="p-6 flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3" id="cart-items-container">
+                            <p class="text-sm text-slate-400 italic text-center mt-10">Your cart is gently resting empty.</p>
+                        </div>
+
+                        <!-- Footer / Checkout -->
+                        <div class="p-6 bg-white border-t border-amber-100 space-y-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-slate-500 text-sm uppercase tracking-widest">Total</span>
+                                <span id="cart-total-badge-sticky" class="font-serif font-black text-2xl text-amber-900">₹0.00</span>
+                            </div>
+
+                            <!-- Delivery Details -->
+                            <div class="space-y-3">
+                                <input type="text" id="cust-name" required placeholder="Full Name"
+                                    class="w-full bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
+                                <input type="tel" id="cust-phone" required maxlength="10" placeholder="Mobile Number"
+                                    class="w-full bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
+                                <input type="text" id="cust-address" required placeholder="Complete Delivery Address"
+                                    class="w-full bg-amber-50/50 border-0 ring-1 ring-amber-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all placeholder:text-slate-400 text-amber-950 font-medium">
+                            </div>
+                            
+                            <button onclick="handleButtonAction(this, () => submitCustomerCheckout())"
+                                class="w-full bg-[#4a362f] hover:bg-amber-950 text-white font-bold py-3.5 rounded-xl text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 group active:scale-[0.98]">
+                                <span>Secure Checkout</span>
+                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Width Menu -->
+                <div class="space-y-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-white shadow-sm gap-4">
+                        <div class="flex-1 w-full space-y-4">
+                            <div>
+                                <h2 class="font-serif text-3xl font-black text-slate-800 tracking-tight">Our Fresh Menu
+                                </h2>
+                                <p class="text-sm text-slate-500 font-medium mt-1">Discover today's handcrafted
+                                    selections and specials.</p>
+                            </div>
+                            <!-- Search Bar -->
+                            <div class="relative w-full max-w-md">
+                                <span class="absolute inset-y-0 left-4 flex items-center text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </span>
+                                <input type="text" id="customer-search-input" onkeyup="filterCustomerMenu()"
+                                    placeholder="Search for treats..."
+                                    class="w-full bg-white/80 border border-white focus:border-amber-300 focus:ring-4 focus:ring-amber-500/20 rounded-full py-2.5 pl-11 pr-4 text-sm font-medium text-slate-800 shadow-sm placeholder:text-slate-400 transition-all outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="customer-product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                        <!-- Dynamically rendered real products go here -->
+                    </div>
+                </div>
+            </main>
+        </section>
 
     <script>
         const API_URL = 'http://localhost:8080';
@@ -1145,7 +1153,7 @@
                 return `
                     <div class="menu-card relative hover-shine opacity-0 translate-y-12 transition-all duration-1000 ease-out bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-lg flex flex-col" style="transition-delay: ${delay}ms;">
                         <!-- Image Section -->
-                        <div class="relative h-56 bg-slate-100">
+                        <div class="relative h-48 sm:h-56 bg-slate-100">
                             ${isDiscounted ? '<span class="absolute top-4 right-4 z-10 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-rose-500/30">⚡ Flash Deal</span>' : ''}
                             <img src="${imageUrl}" alt="${itemName}" class="w-full h-full object-cover" loading="lazy" />
                             <!-- Category Badge -->
@@ -1154,15 +1162,15 @@
                             </span>
                         </div>
                         <!-- Content Section -->
-                        <div class="p-6 flex flex-col flex-grow justify-between">
+                        <div class="p-4 sm:p-6 flex flex-col flex-grow justify-between">
                             <div class="mb-4">
-                                <h4 class="font-serif font-black text-amber-950 text-2xl">${itemName}</h4>
+                                <h4 class="font-serif font-black text-amber-950 text-lg sm:text-2xl leading-tight">${itemName}</h4>
                                 <div class="flex items-baseline gap-2 pt-2">
                                     <span class="text-xl font-black text-slate-900">₹${adjustedPrice.toFixed(2)}</span>
                                     ${isDiscounted ? `<span class="text-[12px] line-through text-slate-400 font-bold">₹${basePrice.toFixed(2)}</span>` : ''}
                                 </div>
                             </div>
-                            <button onclick="addToCustomerCart('${safeName}', ${adjustedPrice})" class="w-full bg-[#4a362f] hover:bg-amber-950 text-white font-bold py-3.5 rounded-full text-sm flex items-center justify-center gap-2 transition-colors">
+                            <button onclick="addToCustomerCart('${safeName}', ${adjustedPrice})" class="w-full bg-[#4a362f] hover:bg-amber-950 text-white font-bold py-2.5 sm:py-3.5 rounded-full text-sm flex items-center justify-center gap-2 transition-colors">
                                 + Add to Basket
                             </button>
                         </div>
@@ -1202,23 +1210,53 @@
             const container = document.getElementById('cart-items-container');
             const totalBadge1 = document.getElementById('cart-total-badge-header');
             const totalBadge2 = document.getElementById('cart-total-badge-sticky');
+            const badge = document.getElementById('floating-cart-badge');
+            
             if (!container) return;
+            
+            if (badge) {
+                if (customerCart.length > 0) {
+                    badge.classList.remove('hidden');
+                    badge.innerText = customerCart.length;
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
             if (customerCart.length === 0) {
-                container.innerHTML = '<p class="text-sm text-slate-400 italic">Your cart is gently resting empty.</p>';
+                container.innerHTML = '<p class="text-sm text-slate-400 italic text-center mt-10">Your cart is gently resting empty.</p>';
                 if (totalBadge1) totalBadge1.innerText = '₹0.00';
                 if (totalBadge2) totalBadge2.innerText = '₹0.00';
                 return;
             }
             const total = customerCart.reduce((sum, item) => sum + item.price, 0);
             container.innerHTML = customerCart.map((item, index) => `
-                <div class="shrink-0 flex items-center gap-2 bg-amber-50/80 px-4 py-2 rounded-full border border-amber-200 text-sm shadow-sm">
-                    <span class="font-bold text-amber-950">${item.name}</span>
-                    <span class="text-amber-700 font-bold ml-1">₹${item.price.toFixed(2)}</span>
-                    <button onclick="removeFromCustomerCart(${index})" class="text-rose-500 hover:text-rose-700 font-black ml-2 text-lg leading-none transition-colors" aria-label="Remove ${item.name}">&times;</button>
+                <div class="flex items-center justify-between bg-amber-50/80 px-4 py-3 rounded-2xl border border-amber-200 text-sm shadow-sm">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-amber-950">${item.name}</span>
+                        <span class="text-amber-700 font-bold">₹${item.price.toFixed(2)}</span>
+                    </div>
+                    <button onclick="removeFromCustomerCart(${index})" class="text-rose-500 hover:text-rose-700 font-black text-xl leading-none transition-colors w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm" aria-label="Remove ${item.name}">&times;</button>
                 </div>
             `).join('');
             if (totalBadge1) totalBadge1.innerText = `₹${total.toFixed(2)}`;
             if (totalBadge2) totalBadge2.innerText = `₹${total.toFixed(2)}`;
+        }
+
+        function toggleCartModal() {
+            const modal = document.getElementById('cart-modal');
+            const content = document.getElementById('cart-modal-content');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                content.classList.add('translate-x-full');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
         }
 
         async function submitCustomerCheckout() {
@@ -1411,69 +1449,158 @@
                 container.innerHTML = `
                     <div class="flex flex-col gap-8 items-center py-4">
                         ${posters.map(poster => `
-                            <div id="poster-${poster.batchId}" class="w-full max-w-4xl bg-[#FFFDF9] border-8 border-amber-800/20 rounded-3xl shadow-2xl p-6 md:p-10 relative overflow-hidden space-y-8">
-                                <div class="flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-2xl p-6 md:px-10 shadow-lg relative">
-                                    <div class="text-center md:text-left space-y-1">
-                                        <h3 class="font-serif text-2xl md:text-3xl font-black italic tracking-wider text-amber-100">Bake &amp; Bliss</h3>
-                                        <p class="text-[10px] md:text-xs uppercase tracking-widest text-amber-200 font-bold">• Bakery • Freshly Baked, Just For You</p>
-                                    </div>
-
-                                    <div class="text-center my-4 md:my-0 space-y-1">
-                                        <div class="inline-block bg-white/10 text-amber-100 text-xs font-extrabold px-4 py-1 rounded-full uppercase tracking-widest border border-amber-300/30">
-                                            Batch #${poster.batchId} (${poster.itemCount} Products)
+                            <div id="poster-${poster.batchId}" class="w-full max-w-3xl bg-[#FFFDF9] rounded-none shadow-2xl p-0 relative overflow-hidden flex flex-col font-sans" style="border: 2px solid #e5e7eb;">
+                                
+                                <!-- Top Section -->
+                                <div class="relative bg-[#f6ecd9] pt-8 pb-4 px-6 overflow-hidden">
+                                    <!-- Freshly Baked sticker -->
+                                    <div class="absolute -top-4 -left-4 bg-[#231f20] text-[#fcd34d] p-6 pt-10 transform -rotate-12 w-32 h-32 rounded-br-[60px] flex items-center justify-center shadow-lg z-10">
+                                        <div class="text-center rotate-12">
+                                            <p class="font-black text-sm uppercase leading-tight">FRESHLY</p>
+                                            <p class="font-black text-sm uppercase leading-tight">BAKED</p>
+                                            <p class="font-black text-xs uppercase leading-tight text-white mt-1">EVERYDAY! ♡</p>
                                         </div>
-                                        <h1 class="font-serif text-4xl md:text-6xl font-black tracking-tight text-white drop-shadow-md">PRICE DROP</h1>
-                                        <p class="text-xs md:text-sm font-bold text-amber-100 tracking-wide">✨ BIG FLAVORS. SMALLER PRICES! ✨</p>
+                                    </div>
+                                    <!-- Limited time offers circle -->
+                                    <div class="absolute -top-6 -right-6 bg-[#be213b] text-[#fcd34d] p-8 pt-12 transform rotate-6 w-40 h-40 rounded-full flex flex-col items-center justify-center shadow-lg z-10">
+                                        <div class="text-center -rotate-6">
+                                            <p class="font-bold text-sm uppercase tracking-widest text-white">LIMITED TIME</p>
+                                            <p class="font-black italic text-3xl mt-1">Offers!</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Logo and Header -->
+                                    <div class="text-center relative z-0 mt-4">
+                                        <div class="flex justify-center items-center gap-2 mb-2">
+                                            <span class="text-amber-800 text-xl">🥖</span>
+                                            <h3 class="font-serif text-3xl font-black tracking-widest text-[#231f20] uppercase">BAKED</h3>
+                                            <span class="text-amber-800 text-xl">🥐</span>
+                                        </div>
+                                        <p class="text-[#8b3a3a] font-serif italic font-bold text-lg">♥ with love ♥</p>
                                     </div>
 
-                                    <div class="hidden lg:flex flex-col items-center bg-amber-900/40 border-2 border-dashed border-amber-200/40 p-4 rounded-xl text-center">
-                                        <span class="text-[11px] font-extrabold uppercase tracking-widest text-amber-200">Limited Time</span>
-                                        <span class="text-lg font-black text-white">PRICE DROP</span>
-                                        <span class="text-xl">👇</span>
+                                    <div class="text-center mt-6">
+                                        <h1 class="font-black text-[#3a2218] uppercase tracking-tighter" style="font-size: 5rem; line-height: 0.8; font-family: Impact, sans-serif; text-shadow: 2px 2px 0px #fff;">BIG</h1>
+                                        <h1 class="font-black text-[#be213b] uppercase tracking-tighter drop-shadow-md" style="font-size: 6rem; line-height: 0.9; font-family: Impact, sans-serif; text-shadow: 4px 4px 0px #fff;">DISCOUNTS</h1>
+                                    </div>
+
+                                    <div class="flex justify-center items-center mt-6 z-10 relative">
+                                        <div class="bg-[#231f20] text-white px-8 py-2 rounded-full font-bold uppercase tracking-widest text-sm shadow-md">
+                                            ♥ MORE TREATS, MORE SAVINGS! ♥
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-center items-center mt-4">
+                                        <div class="bg-[#be213b] text-white px-6 py-2 rounded-md font-bold uppercase tracking-widest text-sm shadow-sm relative">
+                                            <span class="text-amber-300 absolute left-2 top-2">★</span>
+                                            <span class="px-6">SPECIAL OFFERS ON ALL YOUR FAVORITES!</span>
+                                            <span class="text-amber-300 absolute right-2 top-2">★</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-5 gap-3">
+                                <!-- Items Grid -->
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-[#f6ecd9]">
                                     ${poster.items.map((item, index) => {
-                    const itemNum = String(index + 1).padStart(2, '0');
-                    const basePrice = Number(item.basePrice) || 0;
-                    const adjustedPrice = Number(item.adjustedPrice) || 0;
-                    const savings = (basePrice - adjustedPrice).toFixed(2);
-                    return `
-                                            <div class="bg-white rounded-xl p-2.5 border border-amber-100 shadow-sm flex flex-col justify-between relative">
-                                                <span class="absolute top-1.5 left-1.5 bg-amber-700 text-white text-[9px] font-black px-1.5 py-0.5 rounded">${itemNum}</span>
-                                                <div class="text-center pt-3 pb-1">
-                                                    <h4 class="font-serif font-bold text-gray-800 text-xs italic truncate">${item.itemName}</h4>
+                                        const basePrice = Number(item.basePrice) || 0;
+                                        const adjustedPrice = Number(item.adjustedPrice) || 0;
+                                        let discountPercent = 0;
+                                        if (basePrice > 0) {
+                                            discountPercent = Math.round(((basePrice - adjustedPrice) / basePrice) * 100);
+                                        }
+                                        const isBuy1Get1 = discountPercent >= 50 && discountPercent <= 55;
+                                        const highlightBg = isBuy1Get1 ? 'bg-[#fce7f3]' : (index % 3 === 0 ? 'bg-[#fef3c7]' : (index % 3 === 1 ? 'bg-[#fee2e2]' : 'bg-[#ffedd5]'));
+                                        const highlightColor = isBuy1Get1 ? 'text-[#be213b]' : 'text-[#d97706]';
+                                        
+                                        return `
+                                            <div class="${highlightBg} border border-amber-200/50 rounded-xl p-4 flex flex-col items-center justify-between shadow-sm relative overflow-hidden group">
+                                                <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                <div class="w-20 h-20 bg-amber-400 rounded-full flex items-center justify-center p-2 mb-4 shadow-inner relative">
+                                                    <!-- Scalloped edge effect using pseudo-element in CSS theoretically, but here just a circle -->
+                                                    <div class="w-full h-full border-2 border-dashed border-white rounded-full flex flex-col items-center justify-center bg-white">
+                                                        ${isBuy1Get1 ? 
+                                                            `<span class="font-black text-[#be213b] text-xs uppercase leading-tight text-center">BUY 1<br>GET 1<br>FREE</span>` : 
+                                                            `<span class="font-black text-2xl ${highlightColor} leading-none">${discountPercent}%</span><span class="font-bold text-xs ${highlightColor}">OFF</span>`
+                                                        }
+                                                    </div>
                                                 </div>
-                                                <div class="w-full h-20 bg-amber-50 rounded-lg flex items-center justify-center my-1.5 border border-amber-100/60 text-xl">🍞</div>
-                                                <div class="text-center space-y-0.5 pt-1 border-t border-gray-100">
-                                                    <span class="text-[10px] line-through text-gray-400 font-bold">₹${basePrice.toFixed(2)}</span>
-                                                    <div class="bg-amber-600 text-white rounded-lg py-1 shadow-inner"><span class="text-sm font-black">₹${adjustedPrice.toFixed(2)}</span></div>
-                                                    <span class="text-[9px] font-extrabold text-emerald-600 block uppercase">Save ₹${savings}</span>
+                                                <h4 class="font-black text-center uppercase text-gray-800 text-sm mb-1 line-clamp-1 w-full" title="${item.itemName}">ON ${item.itemName}</h4>
+                                                <p class="text-[10px] text-gray-600 text-center mb-3">Freshly baked goodness!</p>
+                                                
+                                                <div class="w-full aspect-square rounded-lg overflow-hidden bg-white/50 flex items-center justify-center mb-3">
+                                                    ${item.imageUrl ? 
+                                                        `<img src="${item.imageUrl}" alt="${item.itemName}" class="w-full h-full object-cover">` : 
+                                                        `<span class="text-4xl">🥖</span>`
+                                                    }
+                                                </div>
+                                                
+                                                <div class="w-full text-center space-y-1">
+                                                    <span class="text-[10px] line-through text-gray-500 font-bold">₹${basePrice.toFixed(2)}</span>
+                                                    <div class="bg-[#be213b] text-white rounded py-1"><span class="text-sm font-black">₹${adjustedPrice.toFixed(2)}</span></div>
                                                 </div>
                                             </div>
                                         `;
-                }).join('')}
+                                    }).join('')}
                                 </div>
 
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-2xl border border-amber-100 text-center text-xs font-bold text-gray-700">
-                                    <div class="flex items-center justify-center gap-2">🏅 Premium Quality</div>
-                                    <div class="flex items-center justify-center gap-2 border-l border-gray-100">🥖 Freshly Baked</div>
-                                    <div class="flex items-center justify-center gap-2 border-l border-gray-100">🌿 Pure Ingredients</div>
-                                    <div class="flex items-center justify-center gap-2 border-l border-gray-100">❤️ Baked With Love</div>
-                                </div>
-
-                                <div class="flex flex-col md:flex-row justify-between items-center bg-amber-500/10 border border-amber-600/30 rounded-2xl p-4 md:px-8 gap-4">
+                                <!-- Footer Dark Section -->
+                                <div class="bg-[#3a2218] text-amber-100 p-4 relative flex flex-col md:flex-row justify-between items-center gap-4">
                                     <div class="flex items-center gap-3">
-                                        <span class="text-3xl">⏰</span>
+                                        <span class="text-3xl">🛍️</span>
                                         <div>
-                                            <h4 class="font-black text-amber-900 text-base uppercase">Hurry Up! Don't Miss Out!</h4>
-                                            <p class="text-xs text-amber-800">Limited-time promotional inventory clearance.</p>
+                                            <p class="text-xs uppercase tracking-wider font-bold">Spend ₹499 & Get</p>
+                                            <p class="text-xl font-black text-[#fcd34d]">5% EXTRA OFF <span class="text-[#be213b]">♥</span></p>
                                         </div>
                                     </div>
-                                    <button onclick="downloadPosterAsPNG('poster-${poster.batchId}')" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-2 rounded-xl text-xs transition shadow">📥 Download A4 Poster PNG</button>
+                                    <div class="border-x border-amber-800/50 px-6 flex flex-col items-center justify-center">
+                                        <p class="text-[#fcd34d] font-serif italic text-lg mb-1">~ Don't Miss Out! ~</p>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-2xl">🛵</span>
+                                            <div>
+                                                <p class="text-sm font-black uppercase text-white">FREE DELIVERY</p>
+                                                <p class="text-[10px] uppercase font-bold text-amber-200">ON ORDERS ABOVE ₹799</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-3xl">🎂</span>
+                                        <div>
+                                            <p class="text-xs uppercase tracking-wider font-bold">Special Birthday Offer</p>
+                                            <p class="text-lg font-black text-white">Flat <span class="text-[#be213b]">15% OFF</span></p>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <!-- Bottom Section -->
+                                <div class="bg-[#f6ecd9] border-t-8 border-white p-6 relative flex flex-col md:flex-row justify-between items-center gap-4 overflow-hidden">
+                                    <div class="absolute -bottom-6 -left-6 bg-[#be213b] text-white p-6 pt-8 w-36 h-36 rounded-full flex items-center justify-center shadow-inner z-10">
+                                        <div class="text-center pb-4">
+                                            <p class="font-black text-sm uppercase leading-tight">THANK YOU</p>
+                                            <p class="font-bold text-[10px] uppercase leading-tight mt-1">FOR SUPPORTING</p>
+                                            <p class="font-black text-sm uppercase leading-tight mt-1">LOCAL!</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pl-32 flex flex-col items-center">
+                                        <p class="font-serif italic font-bold text-[#be213b] text-xl mb-1">~ VISIT US TODAY! ~</p>
+                                        <div class="bg-[#fcd34d] text-[#3a2218] px-6 py-1 rounded font-black uppercase tracking-widest text-sm w-full text-center">
+                                            GOOD FOOD | GOOD MOOD
+                                        </div>
+                                        <div class="flex gap-4 mt-3 text-2xl opacity-60">
+                                            <span>🍞</span><span>🍰</span><span>🧁</span><span>🍪</span><span>🥐</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-200 z-10">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://bakeandbliss.com" alt="QR Code" class="w-16 h-16">
+                                        <div>
+                                            <p class="font-black text-sm text-gray-800 uppercase leading-tight">SCAN TO<br>ORDER<br>NOW!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Download Button overlayed for convenience (doesn't get included in the canvas capture if we hide it, but we can just leave it outside the poster) -->
                             </div>
+                            <button onclick="downloadPosterAsPNG('poster-${poster.batchId}')" class="mt-2 bg-[#be213b] hover:bg-red-700 text-white font-bold py-2 px-6 rounded-xl text-sm transition shadow-lg w-full max-w-3xl">📥 Download A4 Poster PNG (Batch #${poster.batchId})</button>
                         `).join('')}
                     </div>
                 `;
