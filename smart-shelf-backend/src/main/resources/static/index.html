@@ -2063,6 +2063,9 @@
             document.getElementById('cust-address').value = '';
             loadCustomerStoreMenu();
             loadDashboardData();
+            loadPOSProducts();
+            loadPricingDetails();
+            loadFlashPosters();
             loadAdminOnlineOrders();
             loadMarketingSettingsAndCustomers();
         }
@@ -3964,6 +3967,11 @@
                 renderCart();
                 loadDashboardData();
                 loadPOSProducts();
+                loadPricingDetails();
+                loadFlashPosters();
+                if (typeof loadCustomerStoreMenu === 'function') {
+                    loadCustomerStoreMenu();
+                }
                 loadRevenueData();
                 loadMarketingSettingsAndCustomers();
             } catch (err) {

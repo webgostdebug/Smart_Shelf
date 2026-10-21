@@ -53,6 +53,9 @@ public class ShelfController {
     @Autowired
     private com.smartshelf.repository.StoreSettingsRepository storeSettingsRepository;
 
+    @Autowired
+    private com.smartshelf.service.InventoryEvaluationService inventoryEvaluationService;
+
     // --- PRODUCT CATALOG MANAGEMENT ---
 
     @GetMapping("/products")
@@ -407,6 +410,12 @@ public class ShelfController {
         order.setTotalDiscountSaved(Math.max(0, baseValue - totalAmount));
         order.setCustomer(customer);
         orderRepository.save(order);
+
+        try {
+            inventoryEvaluationService.evaluateInventory();
+        } catch (Exception e) {
+            // Ignore evaluation exception during checkout to ensure smooth billing
+        }
 
         return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
     }
