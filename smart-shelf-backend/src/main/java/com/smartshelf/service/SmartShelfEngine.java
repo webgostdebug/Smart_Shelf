@@ -17,6 +17,54 @@ public class SmartShelfEngine {
         this.storeService = storeService;
     }
 
+    public static boolean isAdverseWeather(String weatherCondition) {
+        if (weatherCondition == null || weatherCondition.isBlank()) {
+            return false;
+        }
+        String cond = weatherCondition.toLowerCase().trim();
+        return cond.contains("thunder") || cond.contains("storm") || cond.contains("rain")
+                || cond.contains("drizzle") || cond.contains("mist") || cond.contains("fog")
+                || cond.contains("haze") || cond.contains("squall") || cond.contains("tornado");
+    }
+
+    public static int getWeatherDiscountPercent(String weatherCondition) {
+        if (weatherCondition == null || weatherCondition.isBlank()) {
+            return 30;
+        }
+        String cond = weatherCondition.toLowerCase().trim();
+        if (cond.contains("thunder") || cond.contains("storm") || cond.contains("squall") || cond.contains("tornado")) {
+            return 50;
+        } else if (cond.contains("rain")) {
+            return 30;
+        } else if (cond.contains("drizzle")) {
+            return 20;
+        } else if (cond.contains("mist") || cond.contains("fog") || cond.contains("haze")) {
+            return 15;
+        }
+        return 30;
+    }
+
+    public static String getWeatherLabel(String weatherCondition) {
+        if (weatherCondition == null || weatherCondition.isBlank()) {
+            return "Rain";
+        }
+        String cond = weatherCondition.toLowerCase().trim();
+        if (cond.contains("thunder") || cond.contains("storm") || cond.contains("squall") || cond.contains("tornado")) {
+            return "Thunderstorm";
+        } else if (cond.contains("rain")) {
+            return "Rain";
+        } else if (cond.contains("drizzle")) {
+            return "Drizzle";
+        } else if (cond.contains("mist")) {
+            return "Mist";
+        } else if (cond.contains("fog")) {
+            return "Fog";
+        } else if (cond.contains("haze")) {
+            return "Haze";
+        }
+        return "Adverse Weather";
+    }
+
     public Map<String, Object> evaluateItem(InventoryItem item, double weatherPenalty,
                 String weatherCondition, boolean rainDiscountApproved, double dayWeight) {
         LocalDateTime now = LocalDateTime.now(java.time.ZoneId.of("Asia/Kolkata"));
@@ -62,9 +110,18 @@ public class SmartShelfEngine {
         int discountPercentage = 0;
 
         if (rainDiscountApproved) {
-            discountPercentage = 50;
-            action = "Approved Rain Emergency Sale (50% Off)";
-            channel = "Rainy Day App Push & In-store Banner";
+            discountPercentage = getWeatherDiscountPercent(weatherCondition);
+            String label = getWeatherLabel(weatherCondition);
+            action = "Approved " + label + " Emergency Sale (" + discountPercentage + "% Off)";
+            if (discountPercentage >= 50) {
+                channel = "Thunderstorm Emergency Push & App Banner";
+            } else if (discountPercentage >= 30) {
+                channel = "Rainy Day App Push & In-store Banner";
+            } else if (discountPercentage >= 20) {
+                channel = "Drizzle Day App Push & In-store Banner";
+            } else {
+                channel = "Mist / Fog Advisory App Push & In-store Banner";
+            }
         } else if (storeService.isStoreClosed()) {
             discountPercentage = 50;
             action = "End-of-Day Zero Waste Clearance (50% Off)";

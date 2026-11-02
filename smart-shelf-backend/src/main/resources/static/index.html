@@ -208,22 +208,20 @@
                     </div>
                 </div>
 
-                <!-- Rain Discount Approval Banner (Initially Hidden) -->
+                <!-- Weather Markdown Approval Banner (Initially Hidden) -->
                 <div id="rain-approval-banner"
                     class="hidden bg-blue-50 border border-blue-300 p-3 rounded-lg flex justify-between items-center mt-2">
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl">🌧️</span>
+                        <span id="weather-banner-icon" class="text-xl">🌧️</span>
                         <div>
-                            <p class="text-xs font-bold text-blue-900">Rain Detected in Chennai! Weather Emergency
-                                Active.</p>
-                            <p class="text-xs text-blue-700">Would you like to authorize an aggressive 50% price drop on
-                                surplus stock?</p>
+                            <p id="weather-banner-title" class="text-xs font-bold text-blue-900">Weather Alert Detected in Chennai! Weather Emergency Active.</p>
+                            <p id="weather-banner-desc" class="text-xs text-blue-700">Would you like to authorize a weather markdown on surplus stock?</p>
                         </div>
                     </div>
                     <div class="space-x-2">
-                        <button onclick="approveRainDiscount()"
+                        <button id="weather-banner-approve-btn" onclick="approveRainDiscount()"
                             class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow">
-                            ✅ Approve 50% Discount
+                            ✅ Approve Discount
                         </button>
                         <button onclick="dismissRainDiscount()"
                             class="bg-gray-300 hover:bg-gray-400 text-gray-800 text-xs font-semibold px-2 py-1.5 rounded transition">
@@ -292,14 +290,13 @@
                 <div id="weather-card-approval"
                     class="hidden bg-blue-950/80 border border-blue-500/40 p-3.5 rounded-xl space-y-2.5">
                     <div class="flex items-center space-x-2">
-                        <span class="text-base">🌧️</span>
-                        <p class="text-xs font-semibold text-blue-200">Rain Emergency Triggered! Authorize 50% Off Flash
-                            Sale?</p>
+                        <span id="weather-card-approval-icon" class="text-base">🌧️</span>
+                        <p id="weather-card-approval-text" class="text-xs font-semibold text-blue-200">Weather Alert Triggered! Authorize Weather Markdown?</p>
                     </div>
                     <div class="flex space-x-2 pt-1">
-                        <button onclick="approveRainDiscount()"
+                        <button id="weather-card-approval-btn" onclick="approveRainDiscount()"
                             class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg transition shadow">
-                            ✅ Approve 50% Off
+                            ✅ Approve Discount
                         </button>
                         <button onclick="dismissRainDiscount()"
                             class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-3 py-1.5 rounded-lg transition">
@@ -1473,18 +1470,22 @@
 
         function checkWeatherAndTrigger(conditionString) {
             const normalizedCondition = (conditionString || '').toLowerCase();
-            const isRaining = normalizedCondition.includes('rain')
+            const isAdverse = normalizedCondition.includes('rain')
                 || normalizedCondition.includes('drizzle')
-                || normalizedCondition.includes('storm');
+                || normalizedCondition.includes('storm')
+                || normalizedCondition.includes('thunder')
+                || normalizedCondition.includes('mist')
+                || normalizedCondition.includes('fog')
+                || normalizedCondition.includes('haze');
 
             const stormAlreadyShown = sessionStorage.getItem('storm_animation_shown') === 'true';
 
-            if (isRaining && !rainEffectInitialized && !stormAlreadyShown) {
+            if (isAdverse && !rainEffectInitialized && !stormAlreadyShown) {
                 triggerCinematicStorm();
                 rainEffectInitialized = true;
                 sessionStorage.setItem('storm_animation_shown', 'true');
-                console.log('Rain effect triggered for the first time.');
-            } else if (!isRaining) {
+                console.log('Adverse weather effect triggered for the first time.');
+            } else if (!isAdverse) {
                 rainEffectInitialized = false;
                 sessionStorage.removeItem('storm_animation_shown');
             }
@@ -3983,6 +3984,9 @@
             document.getElementById('rev-total-items').textContent = totalItemsCount;
         }
 
+        let activeWeatherDiscountPercent = 30;
+        let activeWeatherLabel = "Rain";
+
         async function loadWeatherDisplay() {
             try {
                 const res = await fetch(`${SHELF_API_URL}/weather/current`);
@@ -3996,33 +4000,77 @@
                     const cardStatus = document.getElementById('weather-status-pill');
                     const cardApproval = document.getElementById('weather-card-approval');
                     const condition = data.condition || 'Clear';
+
+                    const condLower = condition.toLowerCase();
+                    const isThunder = condLower.includes("thunder") || condLower.includes("storm") || condLower.includes("squall") || condLower.includes("tornado");
+                    const isRain = condLower.includes("rain");
+                    const isDrizzle = condLower.includes("drizzle");
+                    const isMist = condLower.includes("mist") || condLower.includes("fog") || condLower.includes("haze");
+                    const isAdverse = isThunder || isRain || isDrizzle || isMist || data.isAdverseWeather;
+
+                    let discountPercent = data.discountPercent || (isThunder ? 50 : (isRain ? 30 : (isDrizzle ? 20 : (isMist ? 15 : 30))));
+                    let label = data.weatherLabel || (isThunder ? "Thunderstorm" : (isRain ? "Rain" : (isDrizzle ? "Drizzle" : (isMist ? "Mist/Fog" : "Weather"))));
+
+                    activeWeatherDiscountPercent = discountPercent;
+                    activeWeatherLabel = label;
+
                     let icon = "☀️";
-                    const isRaining = condition.toLowerCase().includes("rain");
+                    if (isThunder) icon = "⚡";
+                    else if (isRain) icon = "🌧️";
+                    else if (isDrizzle) icon = "🌦️";
+                    else if (isMist) icon = "🌫️";
+                    else if (condLower.includes("cloud")) icon = "☁️";
+
                     checkWeatherAndTrigger(condition);
 
-                    cardCondition.textContent = condition;
-                    cardPenalty.textContent = `${data.penaltyMultiplier || 1.0}x`;
+                    if (cardCondition) cardCondition.textContent = condition;
+                    if (cardPenalty) cardPenalty.textContent = `${data.penaltyMultiplier || 1.0}x`;
+                    if (cardIcon) cardIcon.textContent = icon;
+                    if (badge) badge.textContent = `${icon} ${data.city || 'Chennai'}: ${condition}`;
 
-                    if (isRaining) {
-                        icon = "🌧️";
-                        cardStatus.textContent = "Rain Emergency";
-                        cardStatus.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30";
+                    if (isAdverse) {
+                        const bannerIcon = document.getElementById('weather-banner-icon');
+                        const bannerTitle = document.getElementById('weather-banner-title');
+                        const bannerDesc = document.getElementById('weather-banner-desc');
+                        const bannerApproveBtn = document.getElementById('weather-banner-approve-btn');
+                        const cardApprIcon = document.getElementById('weather-card-approval-icon');
+                        const cardApprText = document.getElementById('weather-card-approval-text');
+                        const cardApprBtn = document.getElementById('weather-card-approval-btn');
+
+                        if (bannerIcon) bannerIcon.textContent = icon;
+                        if (bannerTitle) bannerTitle.textContent = `${label} Detected in Chennai! Weather Emergency Active.`;
+                        if (bannerDesc) bannerDesc.textContent = `Would you like to authorize an aggressive ${discountPercent}% price drop on surplus stock?`;
+                        if (bannerApproveBtn) bannerApproveBtn.innerHTML = `✅ Approve ${discountPercent}% Discount`;
+
+                        if (cardApprIcon) cardApprIcon.textContent = icon;
+                        if (cardApprText) cardApprText.textContent = `${label} Emergency Triggered! Authorize ${discountPercent}% Off Flash Sale?`;
+                        if (cardApprBtn) cardApprBtn.innerHTML = `✅ Approve ${discountPercent}% Off`;
+
                         if (!rainDiscountApproved) {
-                            banner.classList.remove('hidden');
-                            cardApproval.classList.remove('hidden');
+                            if (banner) banner.classList.remove('hidden');
+                            if (cardApproval) cardApproval.classList.remove('hidden');
+                            if (cardStatus) {
+                                cardStatus.textContent = `${label} Alert (${discountPercent}% Drop Pending)`;
+                                cardStatus.className = isThunder
+                                    ? "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/30"
+                                    : "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30";
+                            }
                         } else {
-                            cardApproval.classList.add('hidden');
+                            if (banner) banner.classList.add('hidden');
+                            if (cardApproval) cardApproval.classList.add('hidden');
+                            if (cardStatus) {
+                                cardStatus.textContent = `${label} Sale Active (${discountPercent}% Off)`;
+                                cardStatus.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                            }
                         }
                     } else {
-                        banner.classList.add('hidden');
-                        cardApproval.classList.add('hidden');
-                        cardStatus.textContent = "Normal Conditions";
-                        cardStatus.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                        if (banner) banner.classList.add('hidden');
+                        if (cardApproval) cardApproval.classList.add('hidden');
+                        if (cardStatus) {
+                            cardStatus.textContent = "Normal Conditions";
+                            cardStatus.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                        }
                     }
-                    cardIcon.textContent = icon;
-                    if (!isRaining && condition.toLowerCase().includes("cloud")) icon = "☁️";
-
-                    badge.textContent = `${icon} ${data.city}: ${condition}`;
                 }
             } catch (e) {
                 console.error("Could not load weather UI banner", e);
@@ -4036,9 +4084,9 @@
             try {
                 await fetch(`${API_URL}/api/store/rain-discount?approved=true`, { method: 'POST' });
             } catch (e) {
-                console.error("Failed to sync rain discount to backend", e);
+                console.error("Failed to sync weather discount to backend", e);
             }
-            alert("Rain emergency discount approved! Prices dropped by 50%.");
+            alert(`${activeWeatherLabel} emergency discount approved! Prices dropped by ${activeWeatherDiscountPercent}%.`);
             loadDashboardData();
             if (typeof loadCustomerStoreMenu === 'function') {
                 loadCustomerStoreMenu();

@@ -74,10 +74,17 @@ public class WeatherService {
 
     public double getWeatherPenalty(String condition) {
         String normalizedCondition = condition == null ? "" : condition.toLowerCase();
-        if (normalizedCondition.contains("rain") || normalizedCondition.contains("storm")
-                || normalizedCondition.contains("drizzle")) {
-            return 1.5;
+        if (normalizedCondition.contains("thunder") || normalizedCondition.contains("storm")
+                || normalizedCondition.contains("squall") || normalizedCondition.contains("tornado")) {
+            return 1.8;
+        } else if (normalizedCondition.contains("rain")) {
+            return 1.4;
+        } else if (normalizedCondition.contains("drizzle")) {
+            return 1.25;
+        } else if (normalizedCondition.contains("mist") || normalizedCondition.contains("fog")
+                || normalizedCondition.contains("haze")) {
+            return 1.15;
         }
         return 1.0;
     }
-}                                                 
+}

@@ -45,7 +45,6 @@ class SmartShelfEngineTest {
     @Test
     @DisplayName("Low inventory with clear weather should maintain regular price (0% discount)")
     void testMaintainRegularPrice() {
-        // Low quantity (1 item) with many hours left
         InventoryItem item = createTestItem("Artisanal Sourdough", 120.0, 3, 1);
 
         Map<String, Object> result = engine.evaluateItem(item, 1.0, "Clear", false, 1.0);
@@ -58,16 +57,55 @@ class SmartShelfEngineTest {
     }
 
     @Test
-    @DisplayName("Approved rain emergency discount should trigger flat 50% discount")
+    @DisplayName("Approved rain emergency discount should trigger calibrated 30% discount")
     void testApprovedRainDiscount() {
         InventoryItem item = createTestItem("French Baguette", 80.0, 1, 5);
 
-        Map<String, Object> result = engine.evaluateItem(item, 1.5, "Rain", true, 1.0);
+        Map<String, Object> result = engine.evaluateItem(item, 1.4, "Rain", true, 1.0);
+
+        assertEquals(30, result.get("discountPercentage"));
+        assertEquals(56.0, (Double) result.get("adjustedPrice"), 0.01);
+        assertEquals("Approved Rain Emergency Sale (30% Off)", result.get("action"));
+        assertEquals("Rainy Day App Push & In-store Banner", result.get("channel"));
+    }
+
+    @Test
+    @DisplayName("Approved thunderstorm discount should trigger 50% discount")
+    void testApprovedThunderstormDiscount() {
+        InventoryItem item = createTestItem("French Baguette", 80.0, 1, 5);
+
+        Map<String, Object> result = engine.evaluateItem(item, 1.8, "Thunderstorm", true, 1.0);
 
         assertEquals(50, result.get("discountPercentage"));
         assertEquals(40.0, (Double) result.get("adjustedPrice"), 0.01);
-        assertEquals("Approved Rain Emergency Sale (50% Off)", result.get("action"));
-        assertEquals("Rainy Day App Push & In-store Banner", result.get("channel"));
+        assertEquals("Approved Thunderstorm Emergency Sale (50% Off)", result.get("action"));
+        assertEquals("Thunderstorm Emergency Push & App Banner", result.get("channel"));
+    }
+
+    @Test
+    @DisplayName("Approved drizzle discount should trigger 20% discount")
+    void testApprovedDrizzleDiscount() {
+        InventoryItem item = createTestItem("French Baguette", 80.0, 1, 5);
+
+        Map<String, Object> result = engine.evaluateItem(item, 1.25, "Drizzle", true, 1.0);
+
+        assertEquals(20, result.get("discountPercentage"));
+        assertEquals(64.0, (Double) result.get("adjustedPrice"), 0.01);
+        assertEquals("Approved Drizzle Emergency Sale (20% Off)", result.get("action"));
+        assertEquals("Drizzle Day App Push & In-store Banner", result.get("channel"));
+    }
+
+    @Test
+    @DisplayName("Approved mist discount should trigger 15% discount")
+    void testApprovedMistDiscount() {
+        InventoryItem item = createTestItem("French Baguette", 80.0, 1, 5);
+
+        Map<String, Object> result = engine.evaluateItem(item, 1.15, "Mist", true, 1.0);
+
+        assertEquals(15, result.get("discountPercentage"));
+        assertEquals(68.0, (Double) result.get("adjustedPrice"), 0.01);
+        assertEquals("Approved Mist Emergency Sale (15% Off)", result.get("action"));
+        assertEquals("Mist / Fog Advisory App Push & In-store Banner", result.get("channel"));
     }
 
     @Test

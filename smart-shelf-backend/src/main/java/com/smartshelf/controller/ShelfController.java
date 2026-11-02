@@ -614,6 +614,10 @@ public class ShelfController {
         response.put("condition", condition);
         response.put("city", "Chennai");
         response.put("penaltyMultiplier", weatherService.fetchWeatherPenalty());
+        response.put("isAdverseWeather", SmartShelfEngine.isAdverseWeather(condition));
+        response.put("discountPercent", SmartShelfEngine.getWeatherDiscountPercent(condition));
+        response.put("weatherLabel", SmartShelfEngine.getWeatherLabel(condition));
+        response.put("rainDiscountApproved", storeService.isRainDiscountApproved());
         return ResponseEntity.ok(response);
     }
 }
