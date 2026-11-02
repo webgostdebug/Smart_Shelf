@@ -612,7 +612,7 @@
                                             <span>Twilio Account SID</span>
                                             <span class="text-[10px] text-blue-600 font-semibold">Starts with AC...</span>
                                         </label>
-                                        <input type="text" id="setting-twilio-sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
+                                        <input type="text" id="setting-twilio-sid" onblur="saveMarketingSettings()" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
                                             class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-medium">
                                     </div>
 
@@ -623,7 +623,7 @@
                                                 <button type="button" onclick="togglePasswordVisibility('setting-twilio-token')" class="text-[10px] text-blue-700 font-bold hover:underline">Show</button>
                                             </label>
                                             <div class="relative">
-                                                <input type="password" id="setting-twilio-token" placeholder="••••••••••••••••" 
+                                                <input type="password" id="setting-twilio-token" onblur="saveMarketingSettings()" placeholder="••••••••••••••••" 
                                                     class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-medium pr-8">
                                             </div>
                                         </div>
@@ -632,7 +632,7 @@
                                                 <span>Twilio Phone Number</span>
                                                 <span class="text-[10px] text-emerald-600 font-semibold">+1... or sender ID</span>
                                             </label>
-                                            <input type="text" id="setting-twilio-from" placeholder="+12345678900" 
+                                            <input type="text" id="setting-twilio-from" onblur="saveMarketingSettings()" placeholder="+12345678900" 
                                                 class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-medium">
                                         </div>
                                     </div>
@@ -641,6 +641,22 @@
                                 <p class="text-[10px] text-gray-500 leading-snug">
                                     ⚡ Real SMS delivery to all registered regular customer mobile numbers. If empty, SMS dispatches are simulated gracefully in backend logs.
                                 </p>
+
+                                <div class="pt-2.5 border-t border-blue-200/70 space-y-2">
+                                    <label class="block text-[11px] font-bold text-gray-700 flex items-center justify-between">
+                                        <span>⚡ Send Instant Test SMS</span>
+                                        <span class="text-[10px] text-blue-600 font-semibold">Verify Twilio live</span>
+                                    </label>
+                                    <div class="flex gap-2">
+                                        <input type="tel" id="setting-twilio-test-phone" placeholder="Enter test number (e.g. 9345263063 or +91...)" 
+                                            class="flex-1 bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <button type="button" id="btn-test-twilio-sms" onclick="sendTestTwilioSms()" 
+                                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow-xs flex items-center gap-1.5 shrink-0">
+                                            <span>⚡</span> Test SMS
+                                        </button>
+                                    </div>
+                                    <div id="twilio-test-feedback" class="text-[11px] font-medium hidden p-2.5 rounded-xl"></div>
+                                </div>
                             </div>
 
                             <!-- Instagram Channel & Account Credentials -->
@@ -662,7 +678,7 @@
                                         <span>Profile / Handle</span>
                                         <span class="text-[10px] text-pink-600 font-semibold">Bakery Handle</span>
                                     </label>
-                                    <input type="text" id="setting-instagram-handle" placeholder="@bakeandbliss" 
+                                    <input type="text" id="setting-instagram-handle" onblur="saveMarketingSettings()" placeholder="@bakeandbliss" 
                                         class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-pink-500 font-medium">
                                 </div>
 
@@ -672,7 +688,7 @@
                                             <span>Instagram Gmail / Email</span>
                                             <span class="text-[10px] text-rose-600 font-semibold">*Required</span>
                                         </label>
-                                        <input type="email" id="setting-instagram-email" placeholder="bakeandbliss@gmail.com" 
+                                        <input type="email" id="setting-instagram-email" onblur="saveMarketingSettings()" placeholder="bakeandbliss@gmail.com" 
                                             class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-pink-500 font-medium">
                                     </div>
                                     <div>
@@ -681,7 +697,7 @@
                                             <button type="button" onclick="togglePasswordVisibility('setting-instagram-password')" class="text-[10px] text-pink-700 font-bold hover:underline">Show</button>
                                         </label>
                                         <div class="relative">
-                                            <input type="password" id="setting-instagram-password" placeholder="••••••••" 
+                                            <input type="password" id="setting-instagram-password" onblur="saveMarketingSettings()" placeholder="••••••••" 
                                                 class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-pink-500 font-medium pr-8">
                                         </div>
                                     </div>
@@ -2665,6 +2681,82 @@
             }
         }
 
+        async function sendTestTwilioSms() {
+            const sid = document.getElementById('setting-twilio-sid')?.value?.trim() || '';
+            const token = document.getElementById('setting-twilio-token')?.value?.trim() || '';
+            const from = document.getElementById('setting-twilio-from')?.value?.trim() || '';
+            const to = document.getElementById('setting-twilio-test-phone')?.value?.trim() || '';
+            const feedback = document.getElementById('twilio-test-feedback');
+            const btn = document.getElementById('btn-test-twilio-sms');
+
+            if (!to) {
+                alert('Please enter a destination phone number (e.g. 9345263063 or +91...) to send a test SMS.');
+                document.getElementById('setting-twilio-test-phone')?.focus();
+                return;
+            }
+
+            if (!sid || !token || !from) {
+                alert('Please fill in Account SID, Auth Token, and Twilio Phone Number above before testing.');
+                return;
+            }
+
+            saveMarketingSettings();
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="inline-block animate-spin">⏳</span> Sending...';
+            }
+
+            if (feedback) {
+                feedback.className = 'text-[11px] font-medium p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 block';
+                feedback.innerHTML = 'Connecting to Twilio and dispatching test SMS to <strong>' + to + '</strong>...';
+            }
+
+            try {
+                const res = await fetch(`${SHELF_API_URL}/marketing/twilio/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        accountSid: sid,
+                        authToken: token,
+                        phoneNumber: from,
+                        toPhone: to
+                    })
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.status === 'SUCCESS') {
+                    if (feedback) {
+                        feedback.className = 'text-[11px] font-medium p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 block';
+                        feedback.innerHTML = '✓ <strong>Success!</strong> ' + data.message + '<br><span class="text-[10px] font-mono text-emerald-700">Message SID: ' + data.sid + '</span>';
+                    }
+                    updateTwilioUIStatus(sid, token, from);
+                } else {
+                    const err = data.error || ('HTTP ' + res.status + ': Failed to send test SMS');
+                    let hint = '';
+                    if (err.includes('unverified') || err.includes('21608')) {
+                        hint = '<br><span class="text-[10px] text-red-800 font-normal"><strong>Twilio Trial Rule:</strong> In a Twilio trial account, you must verify ' + to + ' in your Twilio Console (twilio.com/console/phone-numbers/verified) before Twilio permits sending SMS to it.</span>';
+                    } else if (err.includes('authenticate') || err.includes('20003')) {
+                        hint = '<br><span class="text-[10px] text-red-800 font-normal"><strong>Check Credentials:</strong> Your Account SID or Auth Token is incorrect. Copy them directly from the Twilio Console dashboard.</span>';
+                    }
+                    if (feedback) {
+                        feedback.className = 'text-[11px] font-medium p-2.5 rounded-xl bg-red-50 border border-red-300 text-red-900 block';
+                        feedback.innerHTML = '❌ <strong>Twilio Error:</strong> ' + err + hint;
+                    }
+                }
+            } catch (netErr) {
+                if (feedback) {
+                    feedback.className = 'text-[11px] font-medium p-2.5 rounded-xl bg-red-50 border border-red-300 text-red-900 block';
+                    feedback.innerHTML = '❌ Network Error: Unable to reach server. Check server connection.';
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>⚡</span> Test SMS';
+                }
+            }
+        }
+
         async function exportPosterForInstagram(elementId) {
             const posterElement = document.getElementById(elementId);
             if (!posterElement) return null;
@@ -2755,6 +2847,10 @@
 
                 const channelsList = channel === 'ALL' ? ['sms', 'whatsapp', 'instagram'] : [channel.toLowerCase()];
 
+                const twilioSid = document.getElementById('setting-twilio-sid')?.value?.trim() || localStorage.getItem('smart_shelf_twilio_sid') || '';
+                const twilioToken = document.getElementById('setting-twilio-token')?.value?.trim() || localStorage.getItem('smart_shelf_twilio_token') || '';
+                const twilioFrom = document.getElementById('setting-twilio-from')?.value?.trim() || localStorage.getItem('smart_shelf_twilio_from') || '';
+
                 const payload = {
                     channels: channelsList,
                     topDeals: currentActiveDeals,
@@ -2763,7 +2859,10 @@
                     whatsappCommunityUrl: waUrl,
                     instagramHandle: igHandle,
                     instagramEmail: igEmail,
-                    instagramPassword: igPass
+                    instagramPassword: igPass,
+                    twilioAccountSid: twilioSid,
+                    twilioAuthToken: twilioToken,
+                    twilioPhoneNumber: twilioFrom
                 };
 
                 let result = null;
@@ -2911,18 +3010,46 @@
 
             if (result.sms) {
                 if (modalSmsCount) modalSmsCount.textContent = result.sms.recipientCount || '0';
+                const pill = document.getElementById('modal-sms-status-pill');
+                if (pill) {
+                    if (result.sms.gateway === 'TWILIO') {
+                        if (result.sms.failedCount > 0 && result.sms.successCount === 0) {
+                            pill.className = 'text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded-full';
+                            pill.textContent = 'TWILIO ERROR';
+                        } else {
+                            pill.className = 'text-[10px] font-black bg-emerald-600 text-white px-2 py-0.5 rounded-full';
+                            pill.textContent = 'TWILIO LIVE';
+                        }
+                    } else {
+                        pill.className = 'text-[10px] font-black bg-amber-600 text-white px-2 py-0.5 rounded-full';
+                        pill.textContent = 'SIMULATED';
+                    }
+                }
                 if (recipientsList && result.sms.recipients) {
                     if (result.sms.recipients.length === 0) {
                         recipientsList.innerHTML = `<span class="text-xs text-gray-500 italic">No regular customer phone numbers registered. Add them in the Customer Directory!</span>`;
                     } else {
-                        recipientsList.innerHTML = result.sms.recipients.map(r => `
-                            <span class="inline-flex items-center gap-1.5 bg-white border border-amber-300 text-amber-950 font-semibold text-xs px-2.5 py-1 rounded-lg shadow-2xs">
-                                <span>📱</span>
-                                <strong>${r.customerName}</strong>
-                                <span class="text-gray-500 font-mono">(${r.phone})</span>
-                                <span class="text-emerald-600 font-bold text-[10px]">✓ Sent</span>
-                            </span>
-                        `).join('');
+                        recipientsList.innerHTML = result.sms.recipients.map(r => {
+                            if (r.status === 'FAILED') {
+                                return `
+                                    <span class="inline-flex items-center gap-1.5 bg-red-50 border border-red-300 text-red-950 font-semibold text-xs px-2.5 py-1 rounded-lg shadow-2xs" title="${r.error || ''}">
+                                        <span>❌</span>
+                                        <strong>${r.customerName}</strong>
+                                        <span class="text-gray-500 font-mono">(${r.phone})</span>
+                                        <span class="text-red-600 font-bold text-[10px]">Failed (${r.error ? r.error.substring(0, 30) + '...' : 'Rejected'})</span>
+                                    </span>
+                                `;
+                            } else {
+                                return `
+                                    <span class="inline-flex items-center gap-1.5 bg-white border border-amber-300 text-amber-950 font-semibold text-xs px-2.5 py-1 rounded-lg shadow-2xs">
+                                        <span>📱</span>
+                                        <strong>${r.customerName}</strong>
+                                        <span class="text-gray-500 font-mono">(${r.phone})</span>
+                                        <span class="text-emerald-600 font-bold text-[10px]">✓ Sent</span>
+                                    </span>
+                                `;
+                            }
+                        }).join('');
                     }
                 }
             }

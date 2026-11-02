@@ -396,6 +396,75 @@ public class ShelfController {
         return ResponseEntity.ok(map);
     }
 
+    @PostMapping("/marketing/twilio/test")
+    public ResponseEntity<Map<String, Object>> testTwilioSms(@RequestBody Map<String, String> payload) {
+        String sid = payload.getOrDefault("accountSid", "").trim();
+        String token = payload.getOrDefault("authToken", "").trim();
+        String from = payload.getOrDefault("phoneNumber", "").trim();
+        String to = payload.getOrDefault("toPhone", "").trim();
+
+        com.smartshelf.model.StoreSettings settings = storeSettingsRepository.findById(1L).orElse(null);
+        if (settings != null) {
+            if (sid.isEmpty() && settings.getTwilioAccountSid() != null) sid = settings.getTwilioAccountSid().trim();
+            if (token.isEmpty() && settings.getTwilioAuthToken() != null) token = settings.getTwilioAuthToken().trim();
+            if (from.isEmpty() && settings.getTwilioPhoneNumber() != null) from = settings.getTwilioPhoneNumber().trim();
+        }
+
+        if (sid.isEmpty() || token.isEmpty() || from.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "FAILED",
+                    "error", "Missing Twilio credentials. Please enter Account SID, Auth Token, and Twilio Phone Number."
+            ));
+        }
+
+        if (to.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "FAILED",
+                    "error", "Please provide a valid destination mobile number to test."
+            ));
+        }
+
+        if (settings != null) {
+            settings.setTwilioAccountSid(sid);
+            settings.setTwilioAuthToken(token);
+            String cleanFrom = from.replaceAll("[^0-9+]", "");
+            if (!cleanFrom.startsWith("+")) cleanFrom = "+" + cleanFrom;
+            settings.setTwilioPhoneNumber(cleanFrom);
+            storeSettingsRepository.save(settings);
+            from = cleanFrom;
+        }
+
+        try {
+            com.twilio.Twilio.init(sid, token);
+            String cleanFrom = from.replaceAll("[^0-9+]", "");
+            if (!cleanFrom.startsWith("+")) cleanFrom = "+" + cleanFrom;
+
+            String cleanTo = to.replaceAll("[^0-9+]", "");
+            if (!cleanTo.startsWith("+")) {
+                cleanTo = cleanTo.length() == 10 ? "+91" + cleanTo : "+" + cleanTo;
+            }
+
+            com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message.creator(
+                    new com.twilio.type.PhoneNumber(cleanTo),
+                    new com.twilio.type.PhoneNumber(cleanFrom),
+                    "⚡ Test SMS from Bake & Bliss Smart Shelf! Twilio SMS Gateway is active and connected."
+            ).create();
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "SUCCESS",
+                    "sid", message.getSid() != null ? message.getSid() : "",
+                    "to", cleanTo,
+                    "from", cleanFrom,
+                    "message", "Test SMS successfully sent to " + cleanTo + "!"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "FAILED",
+                    "error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()
+            ));
+        }
+    }
+
     @PostMapping({"/checkout", "/shelf/checkout"})
     @SuppressWarnings("unchecked")
     public ResponseEntity<?> processCheckout(@RequestBody Map<String, Object> checkoutPayload) {
