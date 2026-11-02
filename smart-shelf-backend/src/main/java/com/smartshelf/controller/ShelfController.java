@@ -114,6 +114,32 @@ public class ShelfController {
         return ResponseEntity.ok("Stock updated! Expiry set exactly " + shelfLife + " day(s) from now at " + expiryDateTime);
     }
 
+    // Bulk Daily Restock: Refreshes all catalog products with fresh bake dates and active stock
+    @PostMapping("/inventory/restock-all")
+    public ResponseEntity<String> restockAllItems(@RequestParam(defaultValue = "25") int quantity) {
+        List<Product> products = productRepository.findAll();
+        int count = 0;
+        for (Product product : products) {
+            InventoryItem item = inventoryRepository.findFirstByProductId(product.getId())
+                    .orElse(new InventoryItem());
+            if (item.getId() == null) {
+                item.setProduct(product);
+                item.setStoreId(1L);
+            }
+            item.setCurrentQuantity(quantity);
+            item.setStatus("ACTIVE");
+            item.setBakedDate(LocalDate.now());
+            int shelfLife = product.getShelfLifeDays() > 0 ? product.getShelfLifeDays() : 1;
+            item.setExpiresAt(LocalDateTime.now().plusDays(shelfLife));
+            inventoryRepository.save(item);
+            count++;
+        }
+        try {
+            inventoryEvaluationService.evaluateInventory();
+        } catch (Exception ignored) {}
+        return ResponseEntity.ok("Successfully restocked " + count + " bakery items with fresh stock for today!");
+    }
+
     @PostMapping("/inventory/rollover")
     public ResponseEntity<String> performEodRollover() {
         List<InventoryItem> items = inventoryRepository.findAll();

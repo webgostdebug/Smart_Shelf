@@ -162,6 +162,10 @@ public class ShopController {
             } catch (Exception e) {
                 // ignore evaluation error during checkout
             }
+            try {
+                order.setItemsJson(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(items));
+            } catch (Exception ignored) {}
+            order.setStockDeducted(true);
         }
 
         order.setOrderId("ORD-" + System.currentTimeMillis());

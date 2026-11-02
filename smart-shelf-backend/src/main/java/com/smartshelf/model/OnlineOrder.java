@@ -29,6 +29,11 @@ public class OnlineOrder {
     @Column(length = 2000)
     private String itemsSummary;
 
+    @Column(length = 4000)
+    private String itemsJson;
+
+    private boolean stockDeducted = false;
+
     private double totalAmount;
     private String status;
     private String timestamp;
@@ -45,6 +50,10 @@ public class OnlineOrder {
     public void setAddress(String address) { this.address = address; }
     public String getItemsSummary() { return itemsSummary; }
     public void setItemsSummary(String itemsSummary) { this.itemsSummary = itemsSummary; }
+    public String getItemsJson() { return itemsJson; }
+    public void setItemsJson(String itemsJson) { this.itemsJson = itemsJson; }
+    public boolean isStockDeducted() { return stockDeducted; }
+    public void setStockDeducted(boolean stockDeducted) { this.stockDeducted = stockDeducted; }
     public double getTotalAmount() { return totalAmount; }
     public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
     public String getStatus() { return status; }

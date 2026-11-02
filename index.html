@@ -1611,7 +1611,14 @@
             if (liveShelfPollingInterval) {
                 clearInterval(liveShelfPollingInterval);
             }
-            liveShelfPollingInterval = setInterval(loadDashboardData, 30000);
+            liveShelfPollingInterval = setInterval(() => {
+                loadDashboardData();
+                loadPOSProducts();
+                loadAdminOnlineOrders();
+                if (typeof loadCustomerStoreMenu === 'function') {
+                    loadCustomerStoreMenu();
+                }
+            }, 15000);
         }
 
         async function extendStoreTime(minutes) {
@@ -2214,6 +2221,17 @@
                     else if (newStatus === 'Ready for Pickup') filterOrderTab('Ready for Pickup');
                     else if (newStatus === 'Completed') filterOrderTab('Completed');
                     else if (newStatus === 'Pending') filterOrderTab('Pending');
+
+                    // Synchronize all stock tables, POS items, storefront, and metrics in real time
+                    loadDashboardData();
+                    loadPOSProducts();
+                    loadPricingDetails();
+                    loadFlashPosters();
+                    if (typeof loadCustomerStoreMenu === 'function') {
+                        loadCustomerStoreMenu();
+                    }
+                    loadRevenueData();
+                    loadMarketingSettingsAndCustomers();
                 } else {
                     console.error('Failed to update status on server');
                     alert('Server failed to update order status. Check your backend console.');
