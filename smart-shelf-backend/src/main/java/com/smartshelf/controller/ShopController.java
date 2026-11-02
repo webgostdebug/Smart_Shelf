@@ -11,6 +11,9 @@ import com.smartshelf.repository.OrderRepository;
 import com.smartshelf.service.SmartShelfEngine;
 import com.smartshelf.service.StoreService;
 import com.smartshelf.service.WeatherService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,6 +34,8 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/shop")
 @CrossOrigin(origins = "*")
 public class ShopController {
+
+    private static final Logger log = LoggerFactory.getLogger(ShopController.class);
 
     private final InventoryRepository inventoryRepository;
     private final OnlineOrderRepository orderRepository;
@@ -104,104 +109,111 @@ public class ShopController {
     @Transactional
     public ResponseEntity<Map<String, Object>> placeCustomerOrder(
             @RequestBody OnlineOrder order) {
+        try {
+            List<Map<String, Object>> items = order.getItems();
+            double baseValue = 0.0;
+            int totalItemCount = 0;
 
-        List<Map<String, Object>> items = order.getItems();
-        double baseValue = 0.0;
-        int totalItemCount = 0;
-
-        // Deduct inventory stock if items list is provided
-        if (items != null && !items.isEmpty()) {
-            Map<String, Integer> counts = new HashMap<>();
-            for (Map<String, Object> cartItem : items) {
-                String name = (String) cartItem.get("name");
-                if (name == null || name.isBlank()) {
-                    name = (String) cartItem.get("itemName");
-                }
-                if (name != null && !name.isBlank()) {
-                    String trimmedName = name.trim();
-                    int qty = 1;
-                    if (cartItem.containsKey("quantity") && cartItem.get("quantity") != null) {
-                        try {
-                            qty = ((Number) cartItem.get("quantity")).intValue();
-                        } catch (Exception ignored) {}
+            // Deduct inventory stock if items list is provided
+            if (items != null && !items.isEmpty()) {
+                Map<String, Integer> counts = new HashMap<>();
+                for (Map<String, Object> cartItem : items) {
+                    String name = (String) cartItem.get("name");
+                    if (name == null || name.isBlank()) {
+                        name = (String) cartItem.get("itemName");
                     }
-                    counts.put(trimmedName, counts.getOrDefault(trimmedName, 0) + qty);
-                }
-            }
-
-            // First pass: Verify all items have enough stock
-            for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-                String itemName = entry.getKey();
-                int requestedQty = entry.getValue();
-                InventoryItem invItem = inventoryRepository.findFirstByProductNameIgnoreCase(itemName).orElse(null);
-                if (invItem == null || invItem.getCurrentQuantity() < requestedQty) {
-                    int available = invItem != null ? invItem.getCurrentQuantity() : 0;
-                    return ResponseEntity.badRequest().body(Map.of(
-                            "status", "Error",
-                            "message", "Insufficient stock for " + itemName + " (Available: " + available + ", Requested: " + requestedQty + ")"
-                    ));
-                }
-            }
-
-            // Second pass: Deduct stock and accumulate base value
-            for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-                String itemName = entry.getKey();
-                int requestedQty = entry.getValue();
-                InventoryItem invItem = inventoryRepository.findFirstByProductNameIgnoreCase(itemName).orElse(null);
-                if (invItem != null) {
-                    invItem.setCurrentQuantity(Math.max(0, invItem.getCurrentQuantity() - requestedQty));
-                    inventoryRepository.save(invItem);
-                    if (invItem.getProduct() != null && invItem.getProduct().getBasePrice() != null) {
-                        baseValue += invItem.getProduct().getBasePrice() * requestedQty;
+                    if (name != null && !name.isBlank()) {
+                        String trimmedName = name.trim();
+                        int qty = 1;
+                        if (cartItem.containsKey("quantity") && cartItem.get("quantity") != null) {
+                            try {
+                                qty = ((Number) cartItem.get("quantity")).intValue();
+                            } catch (Exception ignored) {}
+                        }
+                        counts.put(trimmedName, counts.getOrDefault(trimmedName, 0) + qty);
                     }
-                    totalItemCount += requestedQty;
+                }
+
+                // First pass: Verify all items have enough stock
+                for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+                    String itemName = entry.getKey();
+                    int requestedQty = entry.getValue();
+                    InventoryItem invItem = inventoryRepository.findFirstByProductNameIgnoreCase(itemName).orElse(null);
+                    if (invItem == null || invItem.getCurrentQuantity() < requestedQty) {
+                        int available = invItem != null ? invItem.getCurrentQuantity() : 0;
+                        return ResponseEntity.badRequest().body(Map.of(
+                                "status", "Error",
+                                "message", "Insufficient stock for " + itemName + " (Available: " + available + ", Requested: " + requestedQty + ")"
+                        ));
+                    }
+                }
+
+                // Second pass: Deduct stock and accumulate base value
+                for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+                    String itemName = entry.getKey();
+                    int requestedQty = entry.getValue();
+                    InventoryItem invItem = inventoryRepository.findFirstByProductNameIgnoreCase(itemName).orElse(null);
+                    if (invItem != null) {
+                        invItem.setCurrentQuantity(Math.max(0, invItem.getCurrentQuantity() - requestedQty));
+                        inventoryRepository.save(invItem);
+                        if (invItem.getProduct() != null && invItem.getProduct().getBasePrice() != null) {
+                            baseValue += invItem.getProduct().getBasePrice() * requestedQty;
+                        }
+                        totalItemCount += requestedQty;
+                    }
+                }
+                try {
+                    inventoryEvaluationService.evaluateInventory();
+                } catch (Exception e) {
+                    // ignore evaluation error during checkout
+                }
+                try {
+                    order.setItemsJson(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(items));
+                } catch (Exception ignored) {}
+                order.setStockDeducted(true);
+            }
+
+            order.setOrderId("ORD-" + System.currentTimeMillis());
+            order.setStatus("Pending");
+            order.setTimestamp(new Date().toString());
+            orderRepository.save(order);
+
+            Customer customer = null;
+            if (order.getPhone() != null && !order.getPhone().trim().isEmpty()) {
+                String phone = order.getPhone().trim();
+                String name = (order.getCustomerName() != null && !order.getCustomerName().isBlank())
+                        ? order.getCustomerName().trim() : "Online Customer";
+                customer = customerRepository.findByPhone(phone).orElse(null);
+                if (customer != null) {
+                    if (order.getCustomerName() != null && !order.getCustomerName().isBlank()) {
+                        customer.setName(name);
+                        customer = customerRepository.save(customer);
+                    }
+                } else {
+                    Customer newCust = new Customer();
+                    newCust.setName(name);
+                    newCust.setPhone(phone);
+                    customer = customerRepository.save(newCust);
                 }
             }
-            try {
-                inventoryEvaluationService.evaluateInventory();
-            } catch (Exception e) {
-                // ignore evaluation error during checkout
-            }
-            try {
-                order.setItemsJson(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(items));
-            } catch (Exception ignored) {}
-            order.setStockDeducted(true);
+
+            // Record into sales analytics so online sales appear in Revenue & Sales metrics
+            SalesOrder salesOrder = new SalesOrder();
+            salesOrder.setSummaryText("[Online] " + (order.getItemsSummary() != null ? order.getItemsSummary() : "Customer Order"));
+            salesOrder.setItemCount(totalItemCount > 0 ? totalItemCount : 1);
+            salesOrder.setTotalAmount(order.getTotalAmount());
+            salesOrder.setBaseValue(baseValue > 0 ? baseValue : order.getTotalAmount());
+            salesOrder.setTotalDiscountSaved(Math.max(0, salesOrder.getBaseValue() - salesOrder.getTotalAmount()));
+            salesOrder.setCustomer(customer);
+            salesOrderRepository.save(salesOrder);
+
+            return ResponseEntity.ok(Map.of("status", "Success", "orderId", order.getOrderId()));
+        } catch (Exception e) {
+            log.error("Error processing customer checkout: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "Error",
+                    "message", "Order failed on server: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName())
+            ));
         }
-
-        order.setOrderId("ORD-" + System.currentTimeMillis());
-        order.setStatus("Pending");
-        order.setTimestamp(new Date().toString());
-        orderRepository.save(order);
-
-        Customer customer = null;
-        if (order.getPhone() != null && !order.getPhone().trim().isEmpty()) {
-            String phone = order.getPhone().trim();
-            String name = (order.getCustomerName() != null && !order.getCustomerName().isBlank())
-                    ? order.getCustomerName().trim() : "Online Customer";
-            customer = customerRepository.findByPhone(phone).orElse(null);
-            if (customer != null) {
-                if (order.getCustomerName() != null && !order.getCustomerName().isBlank()) {
-                    customer.setName(name);
-                    customer = customerRepository.save(customer);
-                }
-            } else {
-                Customer newCust = new Customer();
-                newCust.setName(name);
-                newCust.setPhone(phone);
-                customer = customerRepository.save(newCust);
-            }
-        }
-
-        // Record into sales analytics so online sales appear in Revenue & Sales metrics
-        SalesOrder salesOrder = new SalesOrder();
-        salesOrder.setSummaryText("[Online] " + (order.getItemsSummary() != null ? order.getItemsSummary() : "Customer Order"));
-        salesOrder.setItemCount(totalItemCount > 0 ? totalItemCount : 1);
-        salesOrder.setTotalAmount(order.getTotalAmount());
-        salesOrder.setBaseValue(baseValue > 0 ? baseValue : order.getTotalAmount());
-        salesOrder.setTotalDiscountSaved(Math.max(0, salesOrder.getBaseValue() - salesOrder.getTotalAmount()));
-        salesOrder.setCustomer(customer);
-        salesOrderRepository.save(salesOrder);
-
-        return ResponseEntity.ok(Map.of("status", "Success", "orderId", order.getOrderId()));
     }
 }

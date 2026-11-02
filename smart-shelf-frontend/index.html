@@ -2105,8 +2105,20 @@
             });
 
             if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                const errMsg = errData.message || 'Checkout failed on server. Please check item availability.';
+                let errMsg = '';
+                try {
+                    const errData = await res.json();
+                    errMsg = errData.message || errData.error || '';
+                } catch (e) {}
+                if (!errMsg) {
+                    if (res.status === 502 || res.status === 503 || res.status === 504) {
+                        errMsg = 'Backend server is restarting or waking up from sleep. Please wait ~30 seconds and try again.';
+                    } else if (res.status === 500) {
+                        errMsg = 'Server error during checkout. Please try again or check item availability.';
+                    } else {
+                        errMsg = 'Checkout failed on server (Status ' + res.status + '). Please check item availability.';
+                    }
+                }
                 alert(errMsg);
                 throw new Error(errMsg);
             }
