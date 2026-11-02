@@ -2736,6 +2736,8 @@
                     let hint = '';
                     if (err.includes('unverified') || err.includes('21608')) {
                         hint = '<br><span class="text-[10px] text-red-800 font-normal"><strong>Twilio Trial Rule:</strong> In a Twilio trial account, you must verify ' + to + ' in your Twilio Console (twilio.com/console/phone-numbers/verified) before Twilio permits sending SMS to it.</span>';
+                    } else if (err.toLowerCase().includes('template') || err.toLowerCase().includes('predefined')) {
+                        hint = '<br><span class="text-[10px] text-amber-900 font-normal"><strong>Twilio Trial Restriction:</strong> Twilio free trial accounts restrict outgoing SMS to predefined sandbox templates to prevent spam and comply with telecom regulations. To send custom bakery flash deals, you need to upgrade your Twilio account (twilio.com/console/billing).</span>';
                     } else if (err.includes('authenticate') || err.includes('20003')) {
                         hint = '<br><span class="text-[10px] text-red-800 font-normal"><strong>Check Credentials:</strong> Your Account SID or Auth Token is incorrect. Copy them directly from the Twilio Console dashboard.</span>';
                     }
