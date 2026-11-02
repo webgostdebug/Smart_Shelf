@@ -1,7 +1,12 @@
 package com.smartshelf.service;
 
 import com.smartshelf.model.Customer;
+import com.smartshelf.model.StoreSettings;
 import com.smartshelf.repository.CustomerRepository;
+import com.smartshelf.repository.StoreSettingsRepository;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,9 +20,11 @@ public class MarketingBroadcastService {
 
     private static final Logger log = LoggerFactory.getLogger(MarketingBroadcastService.class);
     private final CustomerRepository customerRepository;
+    private final StoreSettingsRepository storeSettingsRepository;
 
-    public MarketingBroadcastService(CustomerRepository customerRepository) {
+    public MarketingBroadcastService(CustomerRepository customerRepository, StoreSettingsRepository storeSettingsRepository) {
         this.customerRepository = customerRepository;
+        this.storeSettingsRepository = storeSettingsRepository;
     }
 
     public Map<String, Object> executeBroadcast(Map<String, Object> payload) {
@@ -52,11 +59,25 @@ public class MarketingBroadcastService {
             dealsText.append("\n");
         }
 
-        // 1. Text Messages (SMS) - Strictly sent to regular customers whose numbers are entered
+        // 1. Text Messages (SMS) via Twilio (or graceful simulation fallback if credentials unconfigured)
         if (channels.contains("sms")) {
             List<Customer> regularCustomers = customerRepository.findAll().stream()
                     .filter(c -> c.getPhone() != null && !c.getPhone().trim().isEmpty())
                     .toList();
+
+            StoreSettings settings = storeSettingsRepository.findById(1L).orElse(null);
+            String twilioSid = settings != null && settings.getTwilioAccountSid() != null ? settings.getTwilioAccountSid().trim() : "";
+            String twilioToken = settings != null && settings.getTwilioAuthToken() != null ? settings.getTwilioAuthToken().trim() : "";
+            String twilioFrom = settings != null && settings.getTwilioPhoneNumber() != null ? settings.getTwilioPhoneNumber().trim() : "";
+
+            boolean twilioConfigured = !twilioSid.isEmpty() && !twilioToken.isEmpty() && !twilioFrom.isEmpty();
+            if (twilioConfigured) {
+                try {
+                    Twilio.init(twilioSid, twilioToken);
+                } catch (Exception initEx) {
+                    log.warn("Twilio client initialization warning: {}", initEx.getMessage());
+                }
+            }
 
             List<Map<String, Object>> smsDispatches = new ArrayList<>();
             for (Customer customer : regularCustomers) {
@@ -70,15 +91,39 @@ public class MarketingBroadcastService {
                         storeUrl
                 );
 
-                // Log SMS Dispatch (simulates carrier/Twilio/Fast2SMS delivery gateway)
-                log.info("[SMS BROADCAST] Dispatched SMS to regular customer {} ({}) - Message: {}",
-                        customerName, customer.getPhone(), personalizedMsg.replace("\n", " "));
+                String dispatchStatus = "DELIVERED";
+                String dispatchError = null;
+
+                if (twilioConfigured) {
+                    try {
+                        String rawPhone = customer.getPhone().trim().replaceAll("[^0-9+]", "");
+                        // Standardize Indian phone number with E.164 country code if not present
+                        String toPhone = rawPhone.startsWith("+") ? rawPhone : (rawPhone.length() == 10 ? "+91" + rawPhone : "+" + rawPhone);
+                        Message twilioMessage = Message.creator(
+                                new PhoneNumber(toPhone),
+                                new PhoneNumber(twilioFrom),
+                                personalizedMsg
+                        ).create();
+                        dispatchStatus = twilioMessage.getStatus() != null ? twilioMessage.getStatus().toString() : "SENT";
+                        log.info("[TWILIO SMS] Sent to {} ({}) - SID: {}, Status: {}", customerName, toPhone, twilioMessage.getSid(), dispatchStatus);
+                    } catch (Exception twilioEx) {
+                        dispatchStatus = "FAILED";
+                        dispatchError = twilioEx.getMessage();
+                        log.error("[TWILIO SMS ERROR] Failed to send to {}: {}", customer.getPhone(), twilioEx.getMessage());
+                    }
+                } else {
+                    log.info("[SMS BROADCAST SIMULATED] Dispatched SMS to regular customer {} ({}) - Message: {}",
+                            customerName, customer.getPhone(), personalizedMsg.replace("\n", " "));
+                }
 
                 Map<String, Object> dispatchRecord = new LinkedHashMap<>();
                 dispatchRecord.put("customerId", customer.getId());
                 dispatchRecord.put("customerName", customerName);
                 dispatchRecord.put("phone", customer.getPhone());
-                dispatchRecord.put("status", "DELIVERED");
+                dispatchRecord.put("status", dispatchStatus);
+                if (dispatchError != null) {
+                    dispatchRecord.put("error", dispatchError);
+                }
                 dispatchRecord.put("deliveredAt", timestamp);
                 smsDispatches.add(dispatchRecord);
             }
@@ -86,6 +131,7 @@ public class MarketingBroadcastService {
             Map<String, Object> smsResult = new LinkedHashMap<>();
             smsResult.put("recipientCount", smsDispatches.size());
             smsResult.put("recipients", smsDispatches);
+            smsResult.put("gateway", twilioConfigured ? "TWILIO" : "SIMULATION");
             smsResult.put("status", "SUCCESS");
             smsResult.put("sampleMessage", String.format(
                     "Hi [Customer Name]! ⚡ Smart Shelf Flash Deal Alert at Bake & Bliss! Up to %d%% OFF:\n%sOrder now: %s",

@@ -323,6 +323,9 @@ public class ShelfController {
         map.put("instagramHandle", settings.getInstagramHandle());
         map.put("instagramEmail", settings.getInstagramEmail());
         map.put("instagramPassword", settings.getInstagramPassword());
+        map.put("twilioAccountSid", settings.getTwilioAccountSid());
+        map.put("twilioAuthToken", settings.getTwilioAuthToken());
+        map.put("twilioPhoneNumber", settings.getTwilioPhoneNumber());
         return ResponseEntity.ok(map);
     }
 
@@ -345,6 +348,15 @@ public class ShelfController {
         if (payload.containsKey("instagramPassword")) {
             settings.setInstagramPassword(payload.get("instagramPassword"));
         }
+        if (payload.containsKey("twilioAccountSid")) {
+            settings.setTwilioAccountSid(payload.get("twilioAccountSid"));
+        }
+        if (payload.containsKey("twilioAuthToken")) {
+            settings.setTwilioAuthToken(payload.get("twilioAuthToken"));
+        }
+        if (payload.containsKey("twilioPhoneNumber")) {
+            settings.setTwilioPhoneNumber(payload.get("twilioPhoneNumber"));
+        }
         storeSettingsRepository.save(settings);
         Map<String, Object> map = new java.util.HashMap<>();
         map.put("status", "SUCCESS");
@@ -352,6 +364,9 @@ public class ShelfController {
         map.put("instagramHandle", settings.getInstagramHandle());
         map.put("instagramEmail", settings.getInstagramEmail());
         map.put("instagramPassword", settings.getInstagramPassword());
+        map.put("twilioAccountSid", settings.getTwilioAccountSid());
+        map.put("twilioAuthToken", settings.getTwilioAuthToken());
+        map.put("twilioPhoneNumber", settings.getTwilioPhoneNumber());
         return ResponseEntity.ok(map);
     }
 

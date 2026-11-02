@@ -592,6 +592,57 @@
                                 <p class="text-[10px] text-gray-400 mt-1">1-click broadcast opens your WhatsApp community with prefilled promotional text & pricing.</p>
                             </div>
 
+                            <!-- Twilio SMS Gateway Credentials -->
+                            <div class="p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-amber-50 rounded-2xl border border-blue-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 flex items-center justify-center text-white text-xs font-bold shadow-xs">
+                                            📱
+                                        </div>
+                                        <h5 class="text-xs font-black text-gray-900 uppercase tracking-wide">Twilio SMS Gateway Credentials</h5>
+                                    </div>
+                                    <span id="twilio-badge-status" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                                        Setup Required
+                                    </span>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                            <span>Twilio Account SID</span>
+                                            <span class="text-[10px] text-blue-600 font-semibold">Starts with AC...</span>
+                                        </label>
+                                        <input type="text" id="setting-twilio-sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
+                                            class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-medium">
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                                <span>Twilio Auth Token</span>
+                                                <button type="button" onclick="togglePasswordVisibility('setting-twilio-token')" class="text-[10px] text-blue-700 font-bold hover:underline">Show</button>
+                                            </label>
+                                            <div class="relative">
+                                                <input type="password" id="setting-twilio-token" placeholder="••••••••••••••••" 
+                                                    class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-medium pr-8">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                                <span>Twilio Phone Number</span>
+                                                <span class="text-[10px] text-emerald-600 font-semibold">+1... or sender ID</span>
+                                            </label>
+                                            <input type="text" id="setting-twilio-from" placeholder="+12345678900" 
+                                                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-medium">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-[10px] text-gray-500 leading-snug">
+                                    ⚡ Real SMS delivery to all registered regular customer mobile numbers. If empty, SMS dispatches are simulated gracefully in backend logs.
+                                </p>
+                            </div>
+
                             <!-- Instagram Channel & Account Credentials -->
                             <div class="p-4 bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 rounded-2xl border border-pink-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
@@ -2251,6 +2302,19 @@
                     igPassInput.value = savedPass;
                 }
 
+                const twilioSidInput = document.getElementById('setting-twilio-sid');
+                const twilioTokenInput = document.getElementById('setting-twilio-token');
+                const twilioFromInput = document.getElementById('setting-twilio-from');
+
+                const savedTwilioSid = settings.twilioAccountSid || localStorage.getItem('smart_shelf_twilio_sid') || '';
+                const savedTwilioToken = settings.twilioAuthToken || localStorage.getItem('smart_shelf_twilio_token') || '';
+                const savedTwilioFrom = settings.twilioPhoneNumber || localStorage.getItem('smart_shelf_twilio_from') || '';
+
+                if (twilioSidInput && savedTwilioSid) twilioSidInput.value = savedTwilioSid;
+                if (twilioTokenInput && savedTwilioToken) twilioTokenInput.value = savedTwilioToken;
+                if (twilioFromInput && savedTwilioFrom) twilioFromInput.value = savedTwilioFrom;
+
+                updateTwilioUIStatus(savedTwilioSid, savedTwilioToken, savedTwilioFrom);
                 updateInstagramUIStatus(savedEmail, savedPass);
             } catch (err) {
                 console.error("Failed to load marketing settings and customers", err);
@@ -2352,6 +2416,18 @@
 
         function escapeHtml(str) {
             return (str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        }
+
+        function updateTwilioUIStatus(sid, token, phone) {
+            const badge = document.getElementById('twilio-badge-status');
+            if (!badge) return;
+            if (sid && token && phone) {
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+                badge.innerText = '● Connected & Active';
+            } else {
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200';
+                badge.innerText = 'Setup Required';
+            }
         }
 
         function updateInstagramUIStatus(email, pass) {
@@ -2520,11 +2596,19 @@
             const igHandle = document.getElementById('setting-instagram-handle')?.value?.trim() || '';
             const igEmail = document.getElementById('setting-instagram-email')?.value?.trim() || '';
             const igPass = document.getElementById('setting-instagram-password')?.value?.trim() || '';
+            const twilioSid = document.getElementById('setting-twilio-sid')?.value?.trim() || '';
+            const twilioToken = document.getElementById('setting-twilio-token')?.value?.trim() || '';
+            const twilioFrom = document.getElementById('setting-twilio-from')?.value?.trim() || '';
             const savedMsg = document.getElementById('marketing-settings-saved-msg');
 
             if (igEmail) localStorage.setItem('smart_shelf_ig_email', igEmail);
             if (igPass) localStorage.setItem('smart_shelf_ig_password', igPass);
+            if (twilioSid) localStorage.setItem('smart_shelf_twilio_sid', twilioSid);
+            if (twilioToken) localStorage.setItem('smart_shelf_twilio_token', twilioToken);
+            if (twilioFrom) localStorage.setItem('smart_shelf_twilio_from', twilioFrom);
+
             updateInstagramUIStatus(igEmail, igPass);
+            updateTwilioUIStatus(twilioSid, twilioToken, twilioFrom);
 
             try {
                 const res = await fetch(`${SHELF_API_URL}/marketing/settings`, {
@@ -2534,7 +2618,10 @@
                         whatsappCommunityUrl: waUrl,
                         instagramHandle: igHandle,
                         instagramEmail: igEmail,
-                        instagramPassword: igPass
+                        instagramPassword: igPass,
+                        twilioAccountSid: twilioSid,
+                        twilioAuthToken: twilioToken,
+                        twilioPhoneNumber: twilioFrom
                     })
                 });
                 if (res.ok) {

@@ -29,6 +29,12 @@ public class StoreSettings {
 
     private String instagramPassword = "";
 
+    private String twilioAccountSid = "";
+
+    private String twilioAuthToken = "";
+
+    private String twilioPhoneNumber = "";
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public boolean isIsOpen() { return isOpen; }
@@ -46,4 +52,11 @@ public class StoreSettings {
     public void setInstagramEmail(String instagramEmail) { this.instagramEmail = instagramEmail; }
     public String getInstagramPassword() { return instagramPassword; }
     public void setInstagramPassword(String instagramPassword) { this.instagramPassword = instagramPassword; }
+
+    public String getTwilioAccountSid() { return twilioAccountSid; }
+    public void setTwilioAccountSid(String twilioAccountSid) { this.twilioAccountSid = twilioAccountSid; }
+    public String getTwilioAuthToken() { return twilioAuthToken; }
+    public void setTwilioAuthToken(String twilioAuthToken) { this.twilioAuthToken = twilioAuthToken; }
+    public String getTwilioPhoneNumber() { return twilioPhoneNumber; }
+    public void setTwilioPhoneNumber(String twilioPhoneNumber) { this.twilioPhoneNumber = twilioPhoneNumber; }
 }
