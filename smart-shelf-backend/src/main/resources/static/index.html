@@ -93,7 +93,7 @@
 
 <body class="bg-[#f4efe6] text-amber-950 font-sans min-h-screen">
 
-    <!-- Cinematic Storm & Lightning Overlay -->
+    <!-- Cinematic Weather Overlay Container -->
     <div id="storm-container"
         class="fixed inset-0 pointer-events-none z-50 hidden transition-opacity duration-700 opacity-0 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center">
         <canvas id="storm-canvas" class="absolute inset-0 w-full h-full"></canvas>
@@ -101,10 +101,14 @@
         <div id="lightning-flash" class="absolute inset-0 bg-white pointer-events-none"
             style="opacity: 0; transition: opacity 50ms ease-in-out;"></div>
 
-        <!-- Simple Text Message in the Middle -->
-        <div class="relative z-10 text-center px-4">
-            <p class="text-white text-2xl md:text-3xl font-bold tracking-wide">
+        <!-- Dynamic Weather Message in the Middle -->
+        <div class="relative z-10 text-center px-6 py-5 rounded-3xl bg-slate-950/70 backdrop-blur-md border border-white/10 shadow-2xl max-w-md mx-auto">
+            <div id="weather-anim-icon" class="text-5xl mb-2 animate-bounce">⚡</div>
+            <p id="weather-anim-title" class="text-white text-2xl md:text-3xl font-black tracking-tight">
                 It's time to drop
+            </p>
+            <p id="weather-anim-subtitle" class="text-blue-200 text-sm mt-1 font-medium">
+                Severe Thunderstorm detected in Chennai
             </p>
         </div>
     </div>
@@ -284,6 +288,28 @@
                         <span class="text-slate-400 block text-[10px] uppercase tracking-wider">Penalty
                             Multiplier</span>
                         <span id="weather-card-penalty" class="font-bold text-amber-400 text-sm">1.0x</span>
+                    </div>
+                </div>
+
+                <div class="pt-1 border-t border-slate-700/40">
+                    <span class="text-slate-400 block text-[10px] uppercase tracking-wider mb-1.5 font-semibold">Cinematic Animations</span>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button onclick="triggerCinematicWeather('thunderstorm')" title="Test Thunderstorm Animation"
+                            class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 text-[10px] font-bold py-1.5 px-1 rounded-lg transition text-center flex items-center justify-center gap-1 shadow">
+                            ⚡ Storm
+                        </button>
+                        <button onclick="triggerCinematicWeather('rain')" title="Test Rain Animation"
+                            class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-[10px] font-bold py-1.5 px-1 rounded-lg transition text-center flex items-center justify-center gap-1 shadow">
+                            🌧️ Rain
+                        </button>
+                        <button onclick="triggerCinematicWeather('drizzle')" title="Test Drizzle Animation"
+                            class="bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold py-1.5 px-1 rounded-lg transition text-center flex items-center justify-center gap-1 shadow">
+                            🌦️ Drizzle
+                        </button>
+                        <button onclick="triggerCinematicWeather('mist')" title="Test Mist Animation"
+                            class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-500/30 text-[10px] font-bold py-1.5 px-1 rounded-lg transition text-center flex items-center justify-center gap-1 shadow">
+                            🌫️ Mist
+                        </button>
                     </div>
                 </div>
 
@@ -1384,81 +1410,327 @@
         let stormAnimId = null;
         let lightningInterval = null;
         let isStormRunning = false;
-        let rainEffectInitialized = false;
+        let weatherEffectInitialized = false;
 
-        function triggerCinematicStorm() {
+        function triggerCinematicWeather(weatherType = 'thunderstorm') {
             if (isStormRunning) return;
 
             const container = document.getElementById('storm-container');
             const canvas = document.getElementById('storm-canvas');
             const flash = document.getElementById('lightning-flash');
+            const animIcon = document.getElementById('weather-anim-icon');
+            const animTitle = document.getElementById('weather-anim-title');
+            const animSubtitle = document.getElementById('weather-anim-subtitle');
             if (!container || !canvas || !flash) return;
 
             isStormRunning = true;
             container.classList.remove('hidden');
+
+            const type = (weatherType || 'thunderstorm').toLowerCase();
+
+            // Set dynamic message & styling per weather condition
+            if (type.includes('thunder') || type.includes('storm')) {
+                container.className = "fixed inset-0 pointer-events-none z-50 transition-opacity duration-700 opacity-0 bg-slate-950/90 backdrop-blur-[2px] flex items-center justify-center";
+                if (animIcon) animIcon.textContent = "⚡";
+                if (animTitle) animTitle.textContent = "It's time to drop";
+                if (animSubtitle) animSubtitle.textContent = "Severe Thunderstorm detected • 50% Emergency Markdown";
+            } else if (type.includes('rain')) {
+                container.className = "fixed inset-0 pointer-events-none z-50 transition-opacity duration-700 opacity-0 bg-blue-950/80 backdrop-blur-[2px] flex items-center justify-center";
+                if (animIcon) animIcon.textContent = "🌧️";
+                if (animTitle) animTitle.textContent = "It's time to drop";
+                if (animSubtitle) animSubtitle.textContent = "Rain detected in Chennai • 30% Rainy Day Markdown";
+            } else if (type.includes('drizzle')) {
+                container.className = "fixed inset-0 pointer-events-none z-50 transition-opacity duration-700 opacity-0 bg-slate-900/65 backdrop-blur-[1px] flex items-center justify-center";
+                if (animIcon) animIcon.textContent = "🌦️";
+                if (animTitle) animTitle.textContent = "It's time to drop";
+                if (animSubtitle) animSubtitle.textContent = "Gentle drizzle detected • 20% Weather Markdown";
+            } else if (type.includes('mist') || type.includes('fog') || type.includes('haze')) {
+                container.className = "fixed inset-0 pointer-events-none z-50 transition-opacity duration-700 opacity-0 bg-slate-800/75 backdrop-blur-[3px] flex items-center justify-center";
+                if (animIcon) animIcon.textContent = "🌫️";
+                if (animTitle) animTitle.textContent = "It's time to drop";
+                if (animSubtitle) animSubtitle.textContent = "Low visibility mist detected • 15% Advisory Markdown";
+            } else {
+                container.className = "fixed inset-0 pointer-events-none z-50 transition-opacity duration-700 opacity-0 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center";
+                if (animIcon) animIcon.textContent = "🌧️";
+                if (animTitle) animTitle.textContent = "It's time to drop";
+                if (animSubtitle) animSubtitle.textContent = "Adverse weather detected in Chennai";
+            }
+
             setTimeout(() => container.classList.remove('opacity-0'), 10);
 
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             const ctx = canvas.getContext('2d');
-            const drops = [];
-            const maxDrops = 350;
 
-            for (let i = 0; i < maxDrops; i++) {
-                drops.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height - canvas.height,
-                    length: Math.random() * 35 + 15,
-                    speed: Math.random() * 18 + 12,
-                    width: Math.random() * 1.4 + 0.4,
-                    opacity: Math.random() * 0.4 + 0.15
-                });
-            }
+            const handleResize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', handleResize);
 
-            function renderStorm() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                for (let drop of drops) {
-                    ctx.beginPath();
-                    ctx.lineWidth = drop.width;
-                    ctx.strokeStyle = `rgba(175, 210, 255, ${drop.opacity})`;
-                    ctx.lineCap = 'round';
-                    ctx.moveTo(drop.x, drop.y);
-                    ctx.lineTo(drop.x - 5, drop.y + drop.length);
-                    ctx.stroke();
-                    drop.y += drop.speed;
-                    drop.x -= 1.5;
-                    if (drop.y > canvas.height) {
-                        drop.y = -40;
-                        drop.x = Math.random() * canvas.width;
+            if (type.includes('thunder') || type.includes('storm')) {
+                // ==================== THUNDERSTORM ANIMATION ====================
+                const drops = [];
+                const maxDrops = 400;
+                for (let i = 0; i < maxDrops; i++) {
+                    drops.push({
+                        x: Math.random() * (canvas.width + 200),
+                        y: Math.random() * canvas.height - canvas.height,
+                        length: Math.random() * 45 + 25,
+                        speed: Math.random() * 18 + 22,
+                        width: Math.random() * 1.8 + 0.8,
+                        opacity: Math.random() * 0.5 + 0.3
+                    });
+                }
+
+                let bolts = [];
+                function createLightningBolt() {
+                    let startX = Math.random() * (canvas.width * 0.8) + (canvas.width * 0.1);
+                    let startY = 0;
+                    let segments = [{ x: startX, y: startY }];
+                    let currX = startX;
+                    let currY = startY;
+                    while (currY < canvas.height * 0.85) {
+                        currX += (Math.random() - 0.5) * 60;
+                        currY += Math.random() * 35 + 15;
+                        segments.push({ x: currX, y: currY });
+                    }
+                    return { segments, alpha: 1.0 };
+                }
+
+                function strikeLightning() {
+                    flash.style.opacity = '0.95';
+                    bolts.push(createLightningBolt());
+                    setTimeout(() => { flash.style.opacity = '0'; }, 70);
+                    if (Math.random() > 0.3) {
+                        setTimeout(() => {
+                            flash.style.opacity = '0.5';
+                            bolts.push(createLightningBolt());
+                            setTimeout(() => { flash.style.opacity = '0'; }, 60);
+                        }, 130);
                     }
                 }
-                stormAnimId = requestAnimationFrame(renderStorm);
+
+                setTimeout(strikeLightning, 400);
+                lightningInterval = setInterval(strikeLightning, 1200);
+
+                function renderThunderstorm() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw procedural glowing lightning bolts
+                    for (let b = bolts.length - 1; b >= 0; b--) {
+                        const bolt = bolts[b];
+                        ctx.beginPath();
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${bolt.alpha})`;
+                        ctx.shadowBlur = 18;
+                        ctx.shadowColor = '#60a5fa';
+                        for (let i = 0; i < bolt.segments.length; i++) {
+                            const pt = bolt.segments[i];
+                            if (i === 0) ctx.moveTo(pt.x, pt.y);
+                            else ctx.lineTo(pt.x, pt.y);
+                        }
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                        bolt.alpha -= 0.08;
+                        if (bolt.alpha <= 0) bolts.splice(b, 1);
+                    }
+
+                    // Draw fast angled storm rain
+                    for (let drop of drops) {
+                        ctx.beginPath();
+                        ctx.lineWidth = drop.width;
+                        ctx.strokeStyle = `rgba(180, 220, 255, ${drop.opacity})`;
+                        ctx.lineCap = 'round';
+                        ctx.moveTo(drop.x, drop.y);
+                        ctx.lineTo(drop.x - 10, drop.y + drop.length);
+                        ctx.stroke();
+                        drop.y += drop.speed;
+                        drop.x -= 3.5;
+                        if (drop.y > canvas.height) {
+                            drop.y = -50;
+                            drop.x = Math.random() * (canvas.width + 200);
+                        }
+                    }
+                    stormAnimId = requestAnimationFrame(renderThunderstorm);
+                }
+                renderThunderstorm();
+
+            } else if (type.includes('rain')) {
+                // ==================== RAIN ANIMATION ====================
+                const drops = [];
+                const ripples = [];
+                const maxDrops = 260;
+                for (let i = 0; i < maxDrops; i++) {
+                    drops.push({
+                        x: Math.random() * (canvas.width + 80),
+                        y: Math.random() * canvas.height - canvas.height,
+                        length: Math.random() * 28 + 14,
+                        speed: Math.random() * 10 + 14,
+                        width: Math.random() * 1.3 + 0.6,
+                        opacity: Math.random() * 0.4 + 0.2
+                    });
+                }
+
+                function renderRain() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw steady rain drops
+                    for (let drop of drops) {
+                        ctx.beginPath();
+                        ctx.lineWidth = drop.width;
+                        ctx.strokeStyle = `rgba(175, 215, 255, ${drop.opacity})`;
+                        ctx.lineCap = 'round';
+                        ctx.moveTo(drop.x, drop.y);
+                        ctx.lineTo(drop.x - 3, drop.y + drop.length);
+                        ctx.stroke();
+                        drop.y += drop.speed;
+                        drop.x -= 1.0;
+
+                        if (drop.y > canvas.height) {
+                            if (ripples.length < 30 && Math.random() > 0.4) {
+                                ripples.push({ x: drop.x, y: canvas.height - Math.random() * 20, r: 1, maxR: Math.random() * 12 + 6, alpha: 0.6 });
+                            }
+                            drop.y = -35;
+                            drop.x = Math.random() * (canvas.width + 80);
+                        }
+                    }
+
+                    // Draw water ripples
+                    for (let r = ripples.length - 1; r >= 0; r--) {
+                        const rip = ripples[r];
+                        ctx.beginPath();
+                        ctx.ellipse(rip.x, rip.y, rip.r, rip.r * 0.35, 0, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(190, 225, 255, ${rip.alpha})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        rip.r += 0.8;
+                        rip.alpha -= 0.04;
+                        if (rip.alpha <= 0 || rip.r > rip.maxR) {
+                            ripples.splice(r, 1);
+                        }
+                    }
+
+                    stormAnimId = requestAnimationFrame(renderRain);
+                }
+                renderRain();
+
+            } else if (type.includes('drizzle')) {
+                // ==================== DRIZZLE ANIMATION ====================
+                const drops = [];
+                const maxDrops = 420;
+                for (let i = 0; i < maxDrops; i++) {
+                    drops.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        length: Math.random() * 8 + 4,
+                        speed: Math.random() * 4 + 4,
+                        width: Math.random() * 0.8 + 0.4,
+                        opacity: Math.random() * 0.35 + 0.15,
+                        driftSeed: Math.random() * 100
+                    });
+                }
+
+                let tick = 0;
+                function renderDrizzle() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    tick += 0.02;
+
+                    for (let drop of drops) {
+                        ctx.beginPath();
+                        ctx.lineWidth = drop.width;
+                        ctx.strokeStyle = `rgba(205, 230, 255, ${drop.opacity})`;
+                        ctx.lineCap = 'round';
+                        ctx.moveTo(drop.x, drop.y);
+                        ctx.lineTo(drop.x - 1, drop.y + drop.length);
+                        ctx.stroke();
+
+                        drop.y += drop.speed;
+                        drop.x += Math.sin(tick + drop.driftSeed) * 0.5 + 0.4;
+
+                        if (drop.y > canvas.height) {
+                            drop.y = -15;
+                            drop.x = Math.random() * canvas.width;
+                        }
+                    }
+                    stormAnimId = requestAnimationFrame(renderDrizzle);
+                }
+                renderDrizzle();
+
+            } else {
+                // ==================== MIST / FOG ANIMATION ====================
+                const puffs = [];
+                const maxPuffs = 45;
+                for (let i = 0; i < maxPuffs; i++) {
+                    puffs.push({
+                        x: Math.random() * (canvas.width + 200) - 100,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 140 + 90,
+                        vx: Math.random() * 0.8 + 0.35,
+                        vy: (Math.random() - 0.5) * 0.25,
+                        alpha: Math.random() * 0.12 + 0.06
+                    });
+                }
+
+                const motes = [];
+                for (let m = 0; m < 90; m++) {
+                    motes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: Math.random() * 1.5 + 0.6,
+                        vx: Math.random() * 0.5 + 0.2,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        alpha: Math.random() * 0.4 + 0.2
+                    });
+                }
+
+                function renderMist() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw soft atmospheric radial fog puffs
+                    for (let puff of puffs) {
+                        const grad = ctx.createRadialGradient(puff.x, puff.y, 10, puff.x, puff.y, puff.radius);
+                        grad.addColorStop(0, `rgba(235, 245, 255, ${puff.alpha})`);
+                        grad.addColorStop(0.5, `rgba(220, 235, 250, ${puff.alpha * 0.5})`);
+                        grad.addColorStop(1, 'rgba(210, 225, 245, 0)');
+
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(puff.x, puff.y, puff.radius, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        puff.x += puff.vx;
+                        puff.y += puff.vy;
+
+                        if (puff.x - puff.radius > canvas.width) {
+                            puff.x = -puff.radius;
+                            puff.y = Math.random() * canvas.height;
+                        }
+                    }
+
+                    // Draw floating dew motes
+                    for (let mote of motes) {
+                        ctx.beginPath();
+                        ctx.arc(mote.x, mote.y, mote.r, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(240, 248, 255, ${mote.alpha})`;
+                        ctx.fill();
+                        mote.x += mote.vx;
+                        mote.y += mote.vy;
+                        if (mote.x > canvas.width) mote.x = 0;
+                        if (mote.y > canvas.height) mote.y = 0;
+                        if (mote.y < 0) mote.y = canvas.height;
+                    }
+
+                    stormAnimId = requestAnimationFrame(renderMist);
+                }
+                renderMist();
             }
 
-            renderStorm();
-
-            const strikeLightning = () => {
-                flash.style.opacity = '0.9';
-                setTimeout(() => {
-                    flash.style.opacity = '0';
-                }, 80);
-
-                if (Math.random() > 0.3) {
-                    setTimeout(() => {
-                        flash.style.opacity = '0.45';
-                        setTimeout(() => {
-                            flash.style.opacity = '0';
-                        }, 60);
-                    }, 120);
-                }
-            };
-
-            setTimeout(strikeLightning, 500);
-            lightningInterval = setInterval(strikeLightning, 1200);
-
+            // Cleanup & fade out after 5 seconds
             setTimeout(() => {
                 cancelAnimationFrame(stormAnimId);
-                clearInterval(lightningInterval);
+                if (lightningInterval) clearInterval(lightningInterval);
+                window.removeEventListener('resize', handleResize);
                 container.classList.add('opacity-0');
                 setTimeout(() => {
                     container.classList.add('hidden');
@@ -1468,26 +1740,32 @@
             }, 5000);
         }
 
+        function triggerCinematicStorm() {
+            triggerCinematicWeather('thunderstorm');
+        }
+
         function checkWeatherAndTrigger(conditionString) {
-            const normalizedCondition = (conditionString || '').toLowerCase();
-            const isAdverse = normalizedCondition.includes('rain')
-                || normalizedCondition.includes('drizzle')
-                || normalizedCondition.includes('storm')
-                || normalizedCondition.includes('thunder')
-                || normalizedCondition.includes('mist')
-                || normalizedCondition.includes('fog')
-                || normalizedCondition.includes('haze');
+            const normalized = (conditionString || '').toLowerCase();
+            
+            let weatherType = null;
+            if (normalized.includes('thunder') || normalized.includes('storm') || normalized.includes('squall') || normalized.includes('tornado')) {
+                weatherType = 'thunderstorm';
+            } else if (normalized.includes('rain')) {
+                weatherType = 'rain';
+            } else if (normalized.includes('drizzle')) {
+                weatherType = 'drizzle';
+            } else if (normalized.includes('mist') || normalized.includes('fog') || normalized.includes('haze') || normalized.includes('smoke')) {
+                weatherType = 'mist';
+            }
 
-            const stormAlreadyShown = sessionStorage.getItem('storm_animation_shown') === 'true';
+            const lastAnim = sessionStorage.getItem('weather_anim_shown');
 
-            if (isAdverse && !rainEffectInitialized && !stormAlreadyShown) {
-                triggerCinematicStorm();
-                rainEffectInitialized = true;
-                sessionStorage.setItem('storm_animation_shown', 'true');
-                console.log('Adverse weather effect triggered for the first time.');
-            } else if (!isAdverse) {
-                rainEffectInitialized = false;
-                sessionStorage.removeItem('storm_animation_shown');
+            if (weatherType && !isStormRunning && lastAnim !== weatherType) {
+                triggerCinematicWeather(weatherType);
+                sessionStorage.setItem('weather_anim_shown', weatherType);
+                console.log(`Cinematic ${weatherType} animation triggered.`);
+            } else if (!weatherType) {
+                sessionStorage.removeItem('weather_anim_shown');
             }
         }
 

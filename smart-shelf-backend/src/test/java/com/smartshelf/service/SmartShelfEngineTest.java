@@ -19,8 +19,8 @@ class SmartShelfEngineTest {
     @BeforeEach
     void setUp() {
         storeService = new StoreService();
-        // Set store closing time far in advance (e.g. 23:59) so store is open during tests
-        storeService.setClosingTime(LocalTime.of(23, 59));
+        // Set store closing time far in advance relative to now so test is time-independent
+        storeService.setClosingTime(LocalTime.now(java.time.ZoneId.of("Asia/Kolkata")).plusHours(6));
         storeService.setStoreClosed(false);
         storeService.setRainDiscountApproved(false);
         engine = new SmartShelfEngine(storeService);
@@ -125,9 +125,9 @@ class SmartShelfEngineTest {
     @DisplayName("1-day shelf life items have higher risk factor than longer shelf life items")
     void testShelfLifeWeighting() {
         // 1-day item
-        InventoryItem perishableItem = createTestItem("Fresh Cream Donut", 60.0, 1, 10);
+        InventoryItem perishableItem = createTestItem("Fresh Cream Donut", 60.0, 1, 2);
         // 5-day item
-        InventoryItem durableItem = createTestItem("Oatmeal Cookie Box", 60.0, 5, 10);
+        InventoryItem durableItem = createTestItem("Oatmeal Cookie Box", 60.0, 5, 2);
 
         Map<String, Object> perishableResult = engine.evaluateItem(perishableItem, 1.0, "Clear", false, 1.0);
         Map<String, Object> durableResult = engine.evaluateItem(durableItem, 1.0, "Clear", false, 1.0);
