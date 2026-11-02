@@ -35,6 +35,8 @@ public class StoreSettings {
 
     private String twilioPhoneNumber = "";
 
+    private String fast2smsApiKey = "";
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public boolean isIsOpen() { return isOpen; }
@@ -59,4 +61,7 @@ public class StoreSettings {
     public void setTwilioAuthToken(String twilioAuthToken) { this.twilioAuthToken = twilioAuthToken; }
     public String getTwilioPhoneNumber() { return twilioPhoneNumber; }
     public void setTwilioPhoneNumber(String twilioPhoneNumber) { this.twilioPhoneNumber = twilioPhoneNumber; }
+
+    public String getFast2smsApiKey() { return fast2smsApiKey; }
+    public void setFast2smsApiKey(String fast2smsApiKey) { this.fast2smsApiKey = fast2smsApiKey; }
 }

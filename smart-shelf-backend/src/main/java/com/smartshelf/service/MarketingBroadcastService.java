@@ -77,6 +77,10 @@ public class MarketingBroadcastService {
                     ? ((String) payload.get("twilioPhoneNumber")).trim()
                     : (settings != null && settings.getTwilioPhoneNumber() != null ? settings.getTwilioPhoneNumber().trim() : "");
 
+            String fast2smsKey = (payload.containsKey("fast2smsApiKey") && payload.get("fast2smsApiKey") != null && !((String) payload.get("fast2smsApiKey")).isBlank())
+                    ? ((String) payload.get("fast2smsApiKey")).trim()
+                    : (settings != null && settings.getFast2smsApiKey() != null ? settings.getFast2smsApiKey().trim() : "");
+
             // Sanitize twilioFrom (+ prefix)
             String cleanFrom = twilioFrom.replaceAll("[^0-9+]", "");
             if (!cleanFrom.isEmpty() && !cleanFrom.startsWith("+")) {
@@ -92,6 +96,9 @@ public class MarketingBroadcastService {
                         settings.setTwilioAccountSid(twilioSid);
                         settings.setTwilioAuthToken(twilioToken);
                         settings.setTwilioPhoneNumber(cleanFrom);
+                        if (!fast2smsKey.isEmpty()) {
+                            settings.setFast2smsApiKey(fast2smsKey);
+                        }
                         storeSettingsRepository.save(settings);
                     }
                 } catch (Exception initEx) {
@@ -118,10 +125,50 @@ public class MarketingBroadcastService {
                 String dispatchStatus = "DELIVERED";
                 String dispatchError = null;
 
-                if (twilioConfigured) {
+                if (!fast2smsKey.isEmpty()) {
+                    try {
+                        String rawPhone = customer.getPhone().trim().replaceAll("[^0-9]", "");
+                        if (rawPhone.startsWith("91") && rawPhone.length() == 12) {
+                            rawPhone = rawPhone.substring(2);
+                        }
+                        if (rawPhone.length() == 10) {
+                            String encodedMessage = java.net.URLEncoder.encode(personalizedMsg, java.nio.charset.StandardCharsets.UTF_8);
+                            String urlStr = "https://www.fast2sms.com/dev/bulkV2?route=q&message=" + encodedMessage + "&numbers=" + rawPhone;
+                            java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
+                            java.net.http.HttpRequest httpReq = java.net.http.HttpRequest.newBuilder()
+                                    .uri(java.net.URI.create(urlStr))
+                                    .header("authorization", fast2smsKey)
+                                    .GET()
+                                    .build();
+                            java.net.http.HttpResponse<String> httpRes = httpClient.send(httpReq, java.net.http.HttpResponse.BodyHandlers.ofString());
+                            com.fasterxml.jackson.databind.ObjectMapper fMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                            Map<String, Object> fResult = fMapper.readValue(httpRes.body(), new com.fasterxml.jackson.core.type.TypeReference<>() {});
+                            if (Boolean.TRUE.equals(fResult.get("return"))) {
+                                dispatchStatus = "DELIVERED";
+                                successCount++;
+                                log.info("[FAST2SMS] Sent to {} ({})", customerName, rawPhone);
+                            } else {
+                                dispatchStatus = "FAILED";
+                                dispatchError = fResult.getOrDefault("message", "Fast2SMS error").toString();
+                                lastTwilioError = dispatchError;
+                                failedCount++;
+                                log.error("[FAST2SMS ERROR] Failed for {}: {}", customer.getPhone(), dispatchError);
+                            }
+                        } else {
+                            dispatchStatus = "FAILED";
+                            dispatchError = "Phone number must be 10 digits for Indian SMS";
+                            failedCount++;
+                        }
+                    } catch (Exception fEx) {
+                        dispatchStatus = "FAILED";
+                        dispatchError = fEx.getMessage();
+                        lastTwilioError = fEx.getMessage();
+                        failedCount++;
+                        log.error("[FAST2SMS ERROR] Exception for {}: {}", customer.getPhone(), fEx.getMessage());
+                    }
+                } else if (twilioConfigured) {
                     try {
                         String rawPhone = customer.getPhone().trim().replaceAll("[^0-9+]", "");
-                        // Standardize Indian phone number with E.164 country code if not present
                         String toPhone = rawPhone.startsWith("+") ? rawPhone : (rawPhone.length() == 10 ? "+91" + rawPhone : "+" + rawPhone);
                         Message twilioMessage = Message.creator(
                                 new PhoneNumber(toPhone),
@@ -161,7 +208,7 @@ public class MarketingBroadcastService {
             smsResult.put("successCount", successCount);
             smsResult.put("failedCount", failedCount);
             smsResult.put("recipients", smsDispatches);
-            smsResult.put("gateway", twilioConfigured ? "TWILIO" : "SIMULATION");
+            smsResult.put("gateway", !fast2smsKey.isEmpty() ? "FAST2SMS" : (twilioConfigured ? "TWILIO" : "SIMULATION"));
             smsResult.put("status", failedCount > 0 && successCount == 0 ? "FAILED" : "SUCCESS");
             if (lastTwilioError != null) {
                 smsResult.put("lastError", lastTwilioError);

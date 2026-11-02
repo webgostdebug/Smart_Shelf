@@ -659,6 +659,55 @@
                                 </div>
                             </div>
 
+                            
+                            <!-- Fast2SMS Free India SMS Gateway (Custom Text for India) -->
+                            <div class="p-4 bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 rounded-2xl border border-emerald-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-xs">
+                                            🇮🇳
+                                        </div>
+                                        <div>
+                                            <h5 class="text-xs font-black text-gray-900 uppercase tracking-wide">Fast2SMS Gateway (Free Indian SMS)</h5>
+                                            <p class="text-[10px] text-emerald-800 font-semibold">Sends custom text messages directly to any 10-digit Indian mobile number!</p>
+                                        </div>
+                                    </div>
+                                    <span id="fast2sms-badge-status" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                                        Setup Required
+                                    </span>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                            <span>Fast2SMS API Key</span>
+                                            <a href="https://www.fast2sms.com" target="_blank" class="text-[10px] text-emerald-700 font-bold hover:underline">👉 Get Free Key at fast2sms.com (Free ₹50 Credit)</a>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="password" id="setting-fast2sms-key" onblur="saveMarketingSettings()" placeholder="Enter your Fast2SMS API Key" 
+                                                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono font-medium pr-16">
+                                            <button type="button" onclick="togglePasswordVisibility('setting-fast2sms-key')" class="absolute right-2.5 top-2 text-[10px] text-emerald-700 font-bold hover:underline">Show</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2.5 border-t border-emerald-200/70 space-y-2">
+                                    <label class="block text-[11px] font-bold text-gray-700 flex items-center justify-between">
+                                        <span>⚡ Send Instant Test SMS (Fast2SMS)</span>
+                                        <span class="text-[10px] text-emerald-600 font-semibold">Real Custom SMS</span>
+                                    </label>
+                                    <div class="flex gap-2">
+                                        <input type="tel" id="setting-fast2sms-test-phone" placeholder="Enter 10-digit mobile (e.g. 9345263063)" 
+                                            class="flex-1 bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <button type="button" id="btn-test-fast2sms" onclick="sendTestFast2Sms()" 
+                                            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow-xs flex items-center gap-1.5 shrink-0">
+                                            <span>⚡</span> Test Fast2SMS
+                                        </button>
+                                    </div>
+                                    <div id="fast2sms-test-feedback" class="text-[11px] font-medium hidden p-2.5 rounded-xl"></div>
+                                </div>
+                            </div>
+
                             <!-- Instagram Channel & Account Credentials -->
                             <div class="p-4 bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 rounded-2xl border border-pink-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
@@ -2355,6 +2404,10 @@
                 const savedTwilioSid = settings.twilioAccountSid || localStorage.getItem('smart_shelf_twilio_sid') || '';
                 const savedTwilioToken = settings.twilioAuthToken || localStorage.getItem('smart_shelf_twilio_token') || '';
                 const savedTwilioFrom = settings.twilioPhoneNumber || localStorage.getItem('smart_shelf_twilio_from') || '';
+                const fast2smsKeyInput = document.getElementById('setting-fast2sms-key');
+                const savedFast2smsKey = settings.fast2smsApiKey || localStorage.getItem('smart_shelf_fast2sms_key') || '';
+                if (fast2smsKeyInput && savedFast2smsKey) fast2smsKeyInput.value = savedFast2smsKey;
+                updateFast2smsUIStatus(savedFast2smsKey);
 
                 if (twilioSidInput && savedTwilioSid) twilioSidInput.value = savedTwilioSid;
                 if (twilioTokenInput && savedTwilioToken) twilioTokenInput.value = savedTwilioToken;
@@ -2645,6 +2698,7 @@
             const twilioSid = document.getElementById('setting-twilio-sid')?.value?.trim() || '';
             const twilioToken = document.getElementById('setting-twilio-token')?.value?.trim() || '';
             const twilioFrom = document.getElementById('setting-twilio-from')?.value?.trim() || '';
+            const fast2smsKey = document.getElementById('setting-fast2sms-key')?.value?.trim() || '';
             const savedMsg = document.getElementById('marketing-settings-saved-msg');
 
             if (igEmail) localStorage.setItem('smart_shelf_ig_email', igEmail);
@@ -2667,7 +2721,9 @@
                         instagramPassword: igPass,
                         twilioAccountSid: twilioSid,
                         twilioAuthToken: twilioToken,
-                        twilioPhoneNumber: twilioFrom
+                        twilioPhoneNumber: twilioFrom,
+                    fast2smsApiKey: document.getElementById('setting-fast2sms-key')?.value?.trim() || localStorage.getItem('smart_shelf_fast2sms_key') || '',
+                        fast2smsApiKey: fast2smsKey
                     })
                 });
                 if (res.ok) {
@@ -3014,7 +3070,10 @@
                 if (modalSmsCount) modalSmsCount.textContent = result.sms.recipientCount || '0';
                 const pill = document.getElementById('modal-sms-status-pill');
                 if (pill) {
-                    if (result.sms.gateway === 'TWILIO') {
+                    if (result.sms.gateway === 'FAST2SMS') {
+                        pill.className = 'text-[10px] font-black bg-emerald-600 text-white px-2 py-0.5 rounded-full';
+                        pill.textContent = 'FAST2SMS (INDIA LIVE)';
+                    } else if (result.sms.gateway === 'TWILIO') {
                         if (result.sms.failedCount > 0 && result.sms.successCount === 0) {
                             pill.className = 'text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded-full';
                             pill.textContent = 'TWILIO ERROR';

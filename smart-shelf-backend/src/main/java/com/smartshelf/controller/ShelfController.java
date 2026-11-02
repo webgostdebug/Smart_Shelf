@@ -352,6 +352,7 @@ public class ShelfController {
         map.put("twilioAccountSid", settings.getTwilioAccountSid());
         map.put("twilioAuthToken", settings.getTwilioAuthToken());
         map.put("twilioPhoneNumber", settings.getTwilioPhoneNumber());
+        map.put("fast2smsApiKey", settings.getFast2smsApiKey());
         return ResponseEntity.ok(map);
     }
 
@@ -383,6 +384,9 @@ public class ShelfController {
         if (payload.containsKey("twilioPhoneNumber")) {
             settings.setTwilioPhoneNumber(payload.get("twilioPhoneNumber"));
         }
+        if (payload.containsKey("fast2smsApiKey")) {
+            settings.setFast2smsApiKey(payload.get("fast2smsApiKey"));
+        }
         storeSettingsRepository.save(settings);
         Map<String, Object> map = new java.util.HashMap<>();
         map.put("status", "SUCCESS");
@@ -393,6 +397,7 @@ public class ShelfController {
         map.put("twilioAccountSid", settings.getTwilioAccountSid());
         map.put("twilioAuthToken", settings.getTwilioAuthToken());
         map.put("twilioPhoneNumber", settings.getTwilioPhoneNumber());
+        map.put("fast2smsApiKey", settings.getFast2smsApiKey());
         return ResponseEntity.ok(map);
     }
 
@@ -461,6 +466,78 @@ public class ShelfController {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", "FAILED",
                     "error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()
+            ));
+        }
+    }
+    @PostMapping("/marketing/fast2sms/test")
+    public ResponseEntity<Map<String, Object>> testFast2Sms(@RequestBody Map<String, String> payload) {
+        String apiKey = payload.getOrDefault("apiKey", "").trim();
+        String to = payload.getOrDefault("toPhone", "").trim();
+
+        com.smartshelf.model.StoreSettings settings = storeSettingsRepository.findById(1L).orElse(null);
+        if (apiKey.isEmpty() && settings != null && settings.getFast2smsApiKey() != null) {
+            apiKey = settings.getFast2smsApiKey().trim();
+        }
+        if (apiKey.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "FAILED", "error", "Please provide a Fast2SMS API Key."));
+        }
+        if (to.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "FAILED", "error", "Please enter a 10-digit Indian mobile number to test."));
+        }
+
+        String cleanTo = to.replaceAll("[^0-9]", "");
+        if (cleanTo.startsWith("91") && cleanTo.length() == 12) {
+            cleanTo = cleanTo.substring(2);
+        }
+        if (cleanTo.length() != 10) {
+            return ResponseEntity.badRequest().body(Map.of("status", "FAILED", "error", "Invalid mobile number. Fast2SMS requires a 10-digit Indian phone number (e.g. 9345263063)."));
+        }
+
+        if (settings != null) {
+            settings.setFast2smsApiKey(apiKey);
+            storeSettingsRepository.save(settings);
+        }
+
+        try {
+            String testMessage = "⚡ Test SMS from Bake & Bliss Smart Shelf! Fast2SMS gateway is active & connected.";
+            String encodedMessage = java.net.URLEncoder.encode(testMessage, java.nio.charset.StandardCharsets.UTF_8);
+            String urlStr = "https://www.fast2sms.com/dev/bulkV2?route=q&message=" + encodedMessage + "&numbers=" + cleanTo;
+
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(urlStr))
+                    .header("authorization", apiKey)
+                    .GET()
+                    .build();
+
+            java.net.http.HttpResponse<String> res = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Map<String, Object> result = mapper.readValue(res.body(), new com.fasterxml.jackson.core.type.TypeReference<>() {});
+
+            boolean success = Boolean.TRUE.equals(result.get("return"));
+            if (success) {
+                return ResponseEntity.ok(Map.of(
+                    "status", "SUCCESS",
+                    "message", "Test SMS successfully sent to +91 " + cleanTo + " via Fast2SMS!",
+                    "requestId", result.getOrDefault("request_id", "")
+                ));
+            } else {
+                Object msgObj = result.get("message");
+                String errMsg = "Fast2SMS error";
+                if (msgObj instanceof java.util.List) {
+                    errMsg = String.join(", ", (java.util.List<String>) msgObj);
+                } else if (msgObj != null) {
+                    errMsg = msgObj.toString();
+                }
+                return ResponseEntity.badRequest().body(Map.of(
+                    "status", "FAILED",
+                    "error", errMsg
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "FAILED",
+                "error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()
             ));
         }
     }
