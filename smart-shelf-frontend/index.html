@@ -531,10 +531,10 @@
                         class="bg-white text-amber-950 hover:bg-amber-50 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
                         <span>🔄</span> Refresh Poster
                     </button>
-                    <button onclick="switchTab('customer-store')"
+                    <a href="shop.html" target="_blank"
                         class="bg-amber-700 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-amber-600/50 shadow-md transition flex items-center gap-2">
-                        <span>🛒</span> Visit Customer Store
-                    </button>
+                        <span>🛒</span> Visit Customer Store ↗
+                    </a>
                 </div>
             </div>
 
@@ -2598,6 +2598,15 @@
             }
         }
 
+        function getCustomerStoreUrl() {
+            let url = 'https://webgostdebug.github.io/Smart_Shelf/shop.html';
+            if (window.location.origin && window.location.origin !== 'null' && window.location.protocol !== 'file:') {
+                const basePath = window.location.pathname.replace(/index\.html.*$/, '').replace(/\/+$/, '');
+                url = `${window.location.origin}${basePath}/shop.html`;
+            }
+            return url;
+        }
+
         function copyCustomerStoreLink(url) {
             navigator.clipboard.writeText(url).then(() => {
                 alert('Customer Store link copied to clipboard:\n' + url);
@@ -3172,10 +3181,7 @@
                 }
 
                 // 2. Prepare payload for backend
-                let customerStoreUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/, '')}shop.html`;
-                if (!window.location.origin || window.location.origin === 'null' || window.location.protocol === 'file:') {
-                    customerStoreUrl = 'https://webgostdebug.github.io/Smart_Shelf/shop.html';
-                }
+                const customerStoreUrl = getCustomerStoreUrl();
 
                 const waUrl = document.getElementById('setting-whatsapp-url')?.value?.trim() || 'https://chat.whatsapp.com/BakeAndBlissCommunity';
                 const igHandle = document.getElementById('setting-instagram-handle')?.value?.trim() || '@bakeandbliss';
@@ -3458,12 +3464,9 @@
             `;
 
             try {
-                // Compute verified Customer Store URL
-                let customerStoreUrl = `${window.location.origin}${window.location.pathname}#customer-store`;
-                if (!window.location.origin || window.location.origin === 'null' || window.location.protocol === 'file:') {
-                    customerStoreUrl = 'https://webgostdebug.github.io/Smart_Shelf/#customer-store';
-                }
-                const qrCodeImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(customerStoreUrl)}&margin=1`;
+                // Compute verified Customer Store URL (direct standalone storefront shop.html)
+                const customerStoreUrl = getCustomerStoreUrl();
+                const qrCodeImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(customerStoreUrl)}&margin=1`;
 
                 let allItems = [];
 
@@ -3798,9 +3801,9 @@
                                         <p class="text-[9px] text-gray-500 font-semibold leading-tight">
                                             Scan with phone camera<br>to order directly online!
                                         </p>
-                                        <button onclick="switchTab('customer-store')" class="text-[11px] font-bold text-[#be213b] hover:text-red-700 flex items-center gap-1 underline pt-0.5">
-                                            <span>🛒</span> Open Store Tab ↗
-                                        </button>
+                                        <a href="${customerStoreUrl}" target="_blank" class="text-[11px] font-bold text-[#be213b] hover:text-red-700 flex items-center gap-1 underline pt-0.5">
+                                            <span>🛒</span> Open Store Page ↗
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -3911,10 +3914,10 @@
                                     </button>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <button onclick="switchTab('customer-store')" 
+                                    <a href="${customerStoreUrl}" target="_blank" 
                                         class="bg-amber-400 text-amber-950 hover:bg-amber-300 font-black py-2.5 px-4 rounded-xl transition shadow flex items-center gap-1.5">
                                         <span>🛒</span> View Customer Store ↗
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
