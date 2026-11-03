@@ -37,6 +37,8 @@ public class StoreSettings {
 
     private String fast2smsApiKey = "";
 
+    private String adminPin = "1234";
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public boolean isIsOpen() { return isOpen; }
@@ -64,4 +66,7 @@ public class StoreSettings {
 
     public String getFast2smsApiKey() { return fast2smsApiKey; }
     public void setFast2smsApiKey(String fast2smsApiKey) { this.fast2smsApiKey = fast2smsApiKey; }
+
+    public String getAdminPin() { return (adminPin != null && !adminPin.isBlank()) ? adminPin : "1234"; }
+    public void setAdminPin(String adminPin) { this.adminPin = adminPin; }
 }

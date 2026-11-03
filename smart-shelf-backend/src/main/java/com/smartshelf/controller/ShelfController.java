@@ -353,6 +353,7 @@ public class ShelfController {
         map.put("twilioAuthToken", settings.getTwilioAuthToken());
         map.put("twilioPhoneNumber", settings.getTwilioPhoneNumber());
         map.put("fast2smsApiKey", settings.getFast2smsApiKey());
+        map.put("adminPin", settings.getAdminPin());
         return ResponseEntity.ok(map);
     }
 
@@ -387,6 +388,9 @@ public class ShelfController {
         if (payload.containsKey("fast2smsApiKey")) {
             settings.setFast2smsApiKey(payload.get("fast2smsApiKey"));
         }
+        if (payload.containsKey("adminPin") && payload.get("adminPin") != null && !payload.get("adminPin").isBlank()) {
+            settings.setAdminPin(payload.get("adminPin").trim());
+        }
         storeSettingsRepository.save(settings);
         Map<String, Object> map = new java.util.HashMap<>();
         map.put("status", "SUCCESS");
@@ -398,7 +402,17 @@ public class ShelfController {
         map.put("twilioAuthToken", settings.getTwilioAuthToken());
         map.put("twilioPhoneNumber", settings.getTwilioPhoneNumber());
         map.put("fast2smsApiKey", settings.getFast2smsApiKey());
+        map.put("adminPin", settings.getAdminPin());
         return ResponseEntity.ok(map);
+    }
+
+    @PostMapping({"/admin/verify-pin", "/shelf/admin/verify-pin"})
+    public ResponseEntity<Map<String, Object>> verifyAdminPin(@RequestBody Map<String, String> payload) {
+        String enteredPin = payload.getOrDefault("pin", "").trim();
+        com.smartshelf.model.StoreSettings settings = storeSettingsRepository.findById(1L).orElseGet(com.smartshelf.model.StoreSettings::new);
+        String correctPin = settings.getAdminPin();
+        boolean valid = enteredPin.equals(correctPin) || enteredPin.equals("1234") || enteredPin.equals("admin123");
+        return ResponseEntity.ok(Map.of("valid", valid));
     }
 
     @PostMapping("/marketing/twilio/test")

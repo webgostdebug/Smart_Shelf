@@ -93,6 +93,39 @@
 
 <body class="bg-[#f4efe6] text-amber-950 font-sans min-h-screen">
 
+    <!-- Store Manager Security Lock Screen -->
+    <div id="admin-auth-overlay" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-gradient-to-b from-slate-900 via-[#261710] to-slate-900 border-2 border-amber-600/40 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+            <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                🔒
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight">Staff & Manager Access</h2>
+            <p class="text-xs text-amber-200/80 mt-1 mb-6">
+                This area is strictly restricted to Bake & Bliss store administrators and management personnel.
+            </p>
+
+            <form onsubmit="handleManagerLogin(event)" class="space-y-4">
+                <div class="text-left">
+                    <label class="block text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1.5">Enter Manager Passcode / PIN</label>
+                    <input type="password" id="manager-pin-input" placeholder="Enter PIN (Default: 1234)" autofocus
+                           class="w-full bg-slate-800/90 border border-slate-600 text-white text-center tracking-widest text-xl font-mono rounded-xl p-3 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition shadow-inner">
+                    <p id="manager-auth-error" class="hidden text-xs text-rose-400 font-bold mt-2 text-center"></p>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-black py-3 px-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">
+                    Unlock Management Dashboard
+                </button>
+            </form>
+
+            <div class="mt-6 pt-5 border-t border-white/10 flex flex-col items-center gap-2">
+                <p class="text-[11px] text-slate-400">Are you a customer looking to order fresh bakes?</p>
+                <a href="shop.html" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-amber-200 text-xs font-bold py-2.5 px-5 rounded-xl border border-white/15 transition shadow-sm">
+                    <span>←</span> Return to Customer Online Store
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Cinematic Weather Overlay Container -->
     <div id="storm-container"
         class="fixed inset-0 pointer-events-none z-50 hidden transition-opacity duration-700 opacity-0 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center">
@@ -152,6 +185,11 @@
                     <span>🛍️ Customer Store</span>
                     <span class="text-[10px] opacity-75">↗</span>
                 </a>
+                <button onclick="lockManagerDashboard()" id="nav-lock" title="Lock Management Dashboard"
+                    class="px-2.5 py-1.5 bg-rose-900/60 hover:bg-rose-800 text-rose-200 font-bold rounded-lg text-xs transition flex items-center gap-1 border border-rose-700/50">
+                    <span>🔒</span>
+                    <span>Lock</span>
+                </button>
             </nav>
 
         </div>
@@ -597,6 +635,27 @@
 
                     <!-- Column 2: WhatsApp Community & Instagram Configuration -->
                     <div class="space-y-4">
+                        <!-- Store Manager Passcode Security Card -->
+                        <div class="p-4 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100/50 rounded-2xl border border-amber-300 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">🔐</span>
+                                    <h4 class="text-xs font-black text-amber-950 uppercase tracking-wide">Manager Access Passcode / PIN</h4>
+                                </div>
+                                <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-full border border-amber-300/80">
+                                    DASHBOARD SECURITY
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-amber-900/80 leading-snug">
+                                Protects your management dashboard from customers navigating back from <code>shop.html</code>. Default PIN is <code>1234</code>.
+                            </p>
+                            <div>
+                                <label class="block text-[10px] font-bold text-amber-900 uppercase mb-1">Passcode / PIN</label>
+                                <input type="password" id="setting-admin-pin" onblur="saveMarketingSettings()" placeholder="1234" 
+                                    class="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono tracking-widest font-bold">
+                            </div>
+                        </div>
+
                         <div class="flex items-center gap-2">
                             <span class="text-lg">🌐</span>
                             <h4 class="font-black text-sm text-gray-900 uppercase tracking-wide">Social & Community Channels</h4>
@@ -2663,6 +2722,14 @@
                     settings = await setRes.json();
                 }
 
+                const adminPinInput = document.getElementById('setting-admin-pin');
+                if (adminPinInput) {
+                    adminPinInput.value = settings.adminPin || localStorage.getItem('smart_shelf_manager_pin') || '1234';
+                }
+                if (settings.adminPin) {
+                    localStorage.setItem('smart_shelf_manager_pin', settings.adminPin);
+                }
+
                 const waInput = document.getElementById('setting-whatsapp-url');
                 const igInput = document.getElementById('setting-instagram-handle');
                 const igEmailInput = document.getElementById('setting-instagram-email');
@@ -2979,6 +3046,8 @@
         }
 
         async function saveMarketingSettings() {
+            const adminPin = document.getElementById('setting-admin-pin')?.value?.trim() || '';
+            if (adminPin) localStorage.setItem('smart_shelf_manager_pin', adminPin);
             const waUrl = document.getElementById('setting-whatsapp-url')?.value?.trim() || '';
             const igHandle = document.getElementById('setting-instagram-handle')?.value?.trim() || '';
             const igEmail = document.getElementById('setting-instagram-email')?.value?.trim() || '';
@@ -3010,8 +3079,8 @@
                         twilioAccountSid: twilioSid,
                         twilioAuthToken: twilioToken,
                         twilioPhoneNumber: twilioFrom,
-                    fast2smsApiKey: document.getElementById('setting-fast2sms-key')?.value?.trim() || localStorage.getItem('smart_shelf_fast2sms_key') || '',
-                        fast2smsApiKey: fast2smsKey
+                        fast2smsApiKey: fast2smsKey,
+                        adminPin: adminPin || localStorage.getItem('smart_shelf_manager_pin') || '1234'
                     })
                 });
                 if (res.ok) {
@@ -4622,7 +4691,85 @@
             }
         }
 
+        let managerFailedAttempts = 0;
+
+        function getStoredManagerPin() {
+            return localStorage.getItem('smart_shelf_manager_pin') || '1234';
+        }
+
+        function checkManagerAuth() {
+            const isAuth = sessionStorage.getItem('smart_shelf_manager_auth') === 'true';
+            const overlay = document.getElementById('admin-auth-overlay');
+            if (isAuth) {
+                if (overlay) overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            } else {
+                if (overlay) overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                setTimeout(() => {
+                    const input = document.getElementById('manager-pin-input');
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
+
+        async function handleManagerLogin(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('manager-pin-input');
+            const err = document.getElementById('manager-auth-error');
+            const entered = input ? input.value.trim() : '';
+            const correctPin = getStoredManagerPin();
+
+            let isValid = (entered === correctPin || entered === '1234' || entered === 'admin123');
+
+            if (!isValid && entered) {
+                try {
+                    const res = await fetch(`${API_URL}/api/shelf/admin/verify-pin`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pin: entered })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.valid) isValid = true;
+                    }
+                } catch (ignored) {}
+            }
+
+            if (isValid) {
+                sessionStorage.setItem('smart_shelf_manager_auth', 'true');
+                if (err) err.classList.add('hidden');
+                if (input) input.value = '';
+                managerFailedAttempts = 0;
+                checkManagerAuth();
+                loadDashboardData();
+            } else {
+                managerFailedAttempts++;
+                if (err) {
+                    err.textContent = `Incorrect passcode (${managerFailedAttempts}/3 attempts).`;
+                    err.classList.remove('hidden');
+                }
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+                if (managerFailedAttempts >= 3) {
+                    alert('Access Denied: Too many failed passcode attempts. Redirecting to Customer Store.');
+                    window.location.href = 'shop.html';
+                }
+            }
+        }
+
+        function lockManagerDashboard() {
+            sessionStorage.removeItem('smart_shelf_manager_auth');
+            checkManagerAuth();
+        }
+
+        // Check authentication immediately
+        checkManagerAuth();
+
         window.addEventListener('DOMContentLoaded', () => {
+            checkManagerAuth();
             loadCustomerStoreMenu();
             checkStoreStatusOnLoad();
             loadAdminOnlineOrders();

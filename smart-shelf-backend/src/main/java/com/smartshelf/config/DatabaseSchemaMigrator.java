@@ -34,6 +34,7 @@ public class DatabaseSchemaMigrator {
             "ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS twilio_auth_token VARCHAR(255) DEFAULT ''",
             "ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS twilio_phone_number VARCHAR(255) DEFAULT ''",
             "ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS fast2sms_api_key VARCHAR(255) DEFAULT ''",
+            "ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS admin_pin VARCHAR(100) DEFAULT '1234'",
 
             // online_orders columns
             "ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS items_json TEXT DEFAULT ''",
