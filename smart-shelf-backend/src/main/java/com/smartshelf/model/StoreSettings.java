@@ -39,6 +39,8 @@ public class StoreSettings {
 
     private String adminPin = "1234";
 
+    private boolean initialCustomersSeeded = false;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public boolean isIsOpen() { return isOpen; }
@@ -69,4 +71,7 @@ public class StoreSettings {
 
     public String getAdminPin() { return (adminPin != null && !adminPin.isBlank()) ? adminPin : "1234"; }
     public void setAdminPin(String adminPin) { this.adminPin = adminPin; }
+
+    public boolean isInitialCustomersSeeded() { return initialCustomersSeeded; }
+    public void setInitialCustomersSeeded(boolean initialCustomersSeeded) { this.initialCustomersSeeded = initialCustomersSeeded; }
 }

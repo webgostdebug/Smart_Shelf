@@ -50,6 +50,9 @@ public class DatabaseSchemaMigrator {
             "ALTER TABLE inventory_items ADD COLUMN IF NOT EXISTS baked_date DATE",
             "ALTER TABLE inventory_items ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'ACTIVE'",
 
+            // store_settings columns
+            "ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS initial_customers_seeded BOOLEAN DEFAULT FALSE",
+
             // customers columns
             "ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
 

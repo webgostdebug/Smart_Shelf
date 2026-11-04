@@ -2814,7 +2814,7 @@
                         <span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
                             Regular SMS
                         </span>
-                        <button onclick="deleteRegularCustomer(${cust.id})" class="text-red-500 hover:text-red-700 p-1 font-bold text-xs" title="Remove customer">
+                        <button onclick="deleteRegularCustomer('${cust.id != null ? cust.id : cust.phone}')" class="text-red-500 hover:text-red-700 p-1 font-bold text-xs" title="Remove customer">
                             🗑️
                         </button>
                     </div>
@@ -2853,17 +2853,42 @@
             }
         }
 
-        async function deleteRegularCustomer(id) {
-            if (!confirm('Remove this customer from regular SMS dispatch list?')) return;
+        async function deleteRegularCustomer(idOrPhone) {
+            const target = cachedRegularCustomers.find(c => String(c.id) === String(idOrPhone) || String(c.phone) === String(idOrPhone));
+            const displayName = target ? `${target.name || 'Regular Customer'} (+91 ${target.phone})` : `Customer #${idOrPhone}`;
+
+            if (!confirm(`Are you sure you want to remove ${displayName} from the regular customer directory?`)) return;
+
+            // Optimistic UI update: instantly update list in UI
+            const previousList = [...cachedRegularCustomers];
+            cachedRegularCustomers = cachedRegularCustomers.filter(c => 
+                String(c.id) !== String(idOrPhone) && String(c.phone) !== String(idOrPhone)
+            );
+            renderRegularCustomerList();
+
             try {
-                const res = await fetch(`${SHELF_API_URL}/customers/${id}`, {
+                const res = await fetch(`${SHELF_API_URL}/customers/${encodeURIComponent(idOrPhone)}`, {
                     method: 'DELETE'
                 });
+
                 if (res.ok) {
                     await loadMarketingSettingsAndCustomers();
+                } else {
+                    let errMsg = 'Failed to delete customer.';
+                    try {
+                        const errData = await res.json();
+                        if (errData && errData.message) errMsg = errData.message;
+                    } catch (_) {}
+                    alert(`Error: ${errMsg} (Status: ${res.status})`);
+                    // Rollback on failure
+                    cachedRegularCustomers = previousList;
+                    renderRegularCustomerList();
                 }
             } catch (err) {
                 console.error('Error deleting customer', err);
+                alert('Network error while deleting customer. Please check your connection.');
+                cachedRegularCustomers = previousList;
+                renderRegularCustomerList();
             }
         }
 

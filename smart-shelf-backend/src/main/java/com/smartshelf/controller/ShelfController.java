@@ -324,12 +324,67 @@ public class ShelfController {
         return ResponseEntity.ok(customerRepository.save(customer));
     }
 
-    @DeleteMapping({"/customers/{id}", "/shelf/customers/{id}"})
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
-        if (customerRepository.existsById(id)) {
-            customerRepository.deleteById(id);
+    @org.springframework.transaction.annotation.Transactional
+    @DeleteMapping({"/customers/{identifier}", "/shelf/customers/{identifier}"})
+    public ResponseEntity<Map<String, Object>> deleteCustomer(@PathVariable String identifier) {
+        if (identifier == null || identifier.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Customer ID or Phone is required"));
         }
-        return ResponseEntity.noContent().build();
+        String clean = identifier.trim();
+        Customer customer = null;
+
+        // 1. Try numeric database ID first
+        try {
+            Long numericId = Long.parseLong(clean);
+            customer = customerRepository.findById(numericId).orElse(null);
+        } catch (NumberFormatException ignored) {}
+
+        // 2. Fallback: search by phone number (exact match and digits-only match)
+        if (customer == null) {
+            String digitsOnly = clean.replaceAll("[^0-9]", "");
+            customer = customerRepository.findByPhone(clean)
+                    .or(() -> !digitsOnly.isEmpty() ? customerRepository.findByPhone(digitsOnly) : Optional.empty())
+                    .orElse(null);
+        }
+
+        if (customer != null) {
+            Long custId = customer.getId();
+            // Disassociate from all sales orders first to prevent referential integrity (foreign key) violations
+            try {
+                orderRepository.detachCustomer(custId);
+            } catch (Exception e) {
+                List<SalesOrder> orders = orderRepository.findByCustomerId(custId);
+                if (orders != null && !orders.isEmpty()) {
+                    for (SalesOrder o : orders) {
+                        o.setCustomer(null);
+                    }
+                    orderRepository.saveAll(orders);
+                }
+            }
+            customerRepository.delete(customer);
+            customerRepository.flush();
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Customer successfully removed from directory",
+                    "deletedId", custId,
+                    "phone", customer.getPhone() != null ? customer.getPhone() : ""
+            ));
+        }
+
+        // Return 200 OK so frontend state remains in sync even if already removed
+        return ResponseEntity.ok(Map.of("success", true, "message", "Customer already removed or not found"));
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    @DeleteMapping({"/customers", "/shelf/customers"})
+    public ResponseEntity<Map<String, Object>> deleteCustomerByParam(
+            @RequestParam(required = false) String id,
+            @RequestParam(required = false) String phone) {
+        String target = (id != null && !id.isBlank()) ? id : phone;
+        if (target != null && !target.isBlank()) {
+            return deleteCustomer(target);
+        }
+        return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Missing customer id or phone"));
     }
 
     @PostMapping({"/marketing/broadcast", "/shelf/marketing/broadcast"})

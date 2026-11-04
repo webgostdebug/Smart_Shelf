@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartshelf.model.InventoryItem;
 import com.smartshelf.model.Product;
+import com.smartshelf.model.StoreSettings;
 import com.smartshelf.repository.InventoryRepository;
 import com.smartshelf.repository.ProductRepository;
+import com.smartshelf.repository.StoreSettingsRepository;
 import com.smartshelf.service.InventoryEvaluationService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -26,15 +28,18 @@ public class DataSeeder implements CommandLineRunner {
     private final InventoryRepository inventoryRepository;
     private final InventoryEvaluationService inventoryEvaluationService;
     private final com.smartshelf.repository.CustomerRepository customerRepository;
+    private final StoreSettingsRepository storeSettingsRepository;
 
     public DataSeeder(ProductRepository productRepository,
                       InventoryRepository inventoryRepository,
                       InventoryEvaluationService inventoryEvaluationService,
-                      com.smartshelf.repository.CustomerRepository customerRepository) {
+                      com.smartshelf.repository.CustomerRepository customerRepository,
+                      StoreSettingsRepository storeSettingsRepository) {
         this.productRepository = productRepository;
         this.inventoryRepository = inventoryRepository;
         this.inventoryEvaluationService = inventoryEvaluationService;
         this.customerRepository = customerRepository;
+        this.storeSettingsRepository = storeSettingsRepository;
     }
 
     @Override
@@ -81,7 +86,15 @@ public class DataSeeder implements CommandLineRunner {
             }
         }
 
-        if (customerRepository.count() == 0) {
+        StoreSettings settings = storeSettingsRepository.findById(1L).orElse(null);
+        if (settings == null) {
+            settings = new StoreSettings();
+            settings.setId(1L);
+            settings = storeSettingsRepository.save(settings);
+        }
+
+        // Only seed initial regular customers if the database has NEVER seeded them before
+        if (!settings.isInitialCustomersSeeded() && customerRepository.count() == 0) {
             com.smartshelf.model.Customer c1 = new com.smartshelf.model.Customer();
             c1.setName("Sandheep R S");
             c1.setPhone("9876543210");
@@ -102,6 +115,8 @@ public class DataSeeder implements CommandLineRunner {
             c4.setPhone("9876543213");
             customerRepository.save(c4);
 
+            settings.setInitialCustomersSeeded(true);
+            storeSettingsRepository.save(settings);
             System.out.println("Seeded initial regular customer phone directory (4 regular customers).");
         }
     }
